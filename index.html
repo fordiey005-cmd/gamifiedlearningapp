@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayani Quest ⚔️</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#FFB800;--gold-light:#FFD966;--gold-dark:#D4900A;
+  --red:#FF4757;--red-dark:#C0392B;
+  --bg-dark:#0F0C29;--bg-mid:#1A1550;--bg-card:#23206A;--bg-card2:#2D2880;
+  --text:#FFFFFF;--text-muted:#C8C0F0;--text-dim:#7B72CC;
+  --green:#2ECC71;--green-dark:#27AE60;
+  --blue:#3498DB;--blue-light:#74B9FF;
+  --purple:#9B59B6;--pink:#FF6B9D;
+  --orange:#FF8C42;
+  --radius:18px;--radius-sm:12px;--shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg-dark);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:16px;}
+
+/* ── ANIMATED BACKGROUND ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 20%,rgba(255,184,0,0.15) 0%,transparent 45%),
+    radial-gradient(ellipse at 85% 80%,rgba(155,89,182,0.15) 0%,transparent 45%),
+    radial-gradient(ellipse at 50% 50%,rgba(26,21,80,1) 0%,rgba(15,12,41,1) 100%);
+  pointer-events:none;animation:bgPulse 8s ease-in-out infinite alternate;}
+@keyframes bgPulse{0%{opacity:1;}100%{opacity:0.85;}}
+
+/* Floating stars */
+body::after{content:'⭐ 🌟 ✨ 💫 ⭐ 🌟 ✨';position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;
+  font-size:20px;letter-spacing:120px;line-height:120px;
+  opacity:0.12;pointer-events:none;animation:floatStars 20s linear infinite;}
+@keyframes floatStars{from{transform:translateY(0);}to{transform:translateY(-60px);}}
+
+.screen{display:none;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── TOP BAR ── */
+.topbar{position:relative;z-index:10;
+  background:linear-gradient(135deg,#1E1A7A 0%,#2D2880 100%);
+  border-bottom:3px solid var(--gold);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 24px rgba(0,0,0,0.5);}
+.topbar-title{font-family:'Fredoka One',cursive;font-size:24px;color:var(--gold);
+  letter-spacing:1px;text-shadow:0 0 20px rgba(255,184,0,0.6);
+  display:flex;align-items:center;gap:8px;}
+.topbar-xp{background:linear-gradient(135deg,rgba(255,184,0,0.25),rgba(255,184,0,0.1));
+  border:2px solid var(--gold);border-radius:24px;padding:8px 16px;
+  font-size:16px;font-weight:900;color:var(--gold-light);display:flex;align-items:center;gap:6px;
+  text-shadow:0 0 10px rgba(255,184,0,0.5);}
+.topbar-xp::before{content:'⚡';font-size:18px;}
+
+.content{position:relative;z-index:1;flex:1;padding:20px;overflow-y:auto;padding-bottom:100px;}
+
+/* ── BOTTOM NAV ── */
+.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:linear-gradient(180deg,#1E1A7A 0%,#0F0C29 100%);
+  border-top:3px solid rgba(255,184,0,0.4);
+  display:flex;padding:8px 0 14px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.5);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;
+  border:none;background:none;cursor:pointer;color:var(--text-dim);
+  font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;transition:all 0.25s;letter-spacing:0.3px;}
+.nav-btn .nav-icon{font-size:24px;transition:transform 0.25s;}
+.nav-btn.active{color:var(--gold);}
+.nav-btn.active .nav-icon{transform:scale(1.3) translateY(-2px);}
+.nav-btn:hover{color:var(--gold-light);}
+
+/* ── CARDS ── */
+.card{background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-card2) 100%);
+  border:2px solid rgba(255,184,0,0.25);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-gold{border-color:rgba(255,184,0,0.6);
+  background:linear-gradient(135deg,rgba(255,184,0,0.18) 0%,var(--bg-card) 100%);}
+.card-purple{border-color:rgba(155,89,182,0.5);
+  background:linear-gradient(135deg,rgba(155,89,182,0.15) 0%,var(--bg-card) 100%);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 28px;border:none;border-radius:var(--radius-sm);
+  font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;
+  cursor:pointer;transition:all 0.2s;text-align:center;letter-spacing:0.3px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold) 0%,var(--orange) 100%);color:#1A0A00;
+  box-shadow:0 6px 20px rgba(255,184,0,0.5);}
+.btn-gold:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 28px rgba(255,184,0,0.6);}
+.btn-gold:active{transform:translateY(0);}
+.btn-outline{background:transparent;border:2px solid rgba(255,184,0,0.5);color:var(--gold-light);font-size:15px;}
+.btn-outline:hover{border-color:var(--gold);background:rgba(255,184,0,0.15);}
+.btn-blue{background:linear-gradient(135deg,var(--blue) 0%,#1A5276 100%);color:#fff;
+  box-shadow:0 6px 20px rgba(52,152,219,0.4);}
+.btn-blue:hover{transform:translateY(-2px);}
+.btn-green{background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);color:#fff;
+  box-shadow:0 6px 20px rgba(46,204,113,0.4);}
+.btn-full{width:100%;}
+.btn-sm{padding:10px 18px;font-size:14px;}
+
+/* ── INPUTS ── */
+.input-group{margin-bottom:18px;}
+.input-group label{display:block;font-size:14px;font-weight:800;color:var(--text-muted);
+  margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px;}
+.input-field{width:100%;background:rgba(0,0,0,0.35);border:2px solid rgba(255,184,0,0.3);
+  border-radius:var(--radius-sm);padding:14px 18px;color:var(--text);
+  font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;
+  transition:border-color 0.2s,box-shadow 0.2s;outline:none;}
+.input-field:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,184,0,0.2);}
+.input-field::placeholder{color:var(--text-dim);}
+.checkbox-row{display:flex;align-items:center;gap:12px;margin-top:12px;
+  font-size:15px;color:var(--text-muted);cursor:pointer;font-weight:700;}
+.checkbox-row input{width:18px;height:18px;accent-color:var(--gold);}
+
+/* ── SECTION TITLE ── */
+.section-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--gold);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;letter-spacing:0.5px;}
+.section-title::after{content:'';flex:1;height:2px;
+  background:linear-gradient(90deg,rgba(255,184,0,0.5) 0%,transparent 100%);border-radius:2px;}
+
+/* ── QUARTER TABS ── */
+.quarter-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;}
+.quarter-tab{padding:12px 10px;border:2px solid rgba(255,184,0,0.25);border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.25);color:var(--text-muted);font-size:12px;font-weight:800;
+  cursor:pointer;text-align:center;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px;}
+.quarter-tab.active{background:linear-gradient(135deg,rgba(255,184,0,0.25),rgba(255,140,66,0.15));
+  border-color:var(--gold);color:var(--gold-light);
+  box-shadow:0 0 16px rgba(255,184,0,0.2);}
+
+/* ── MISSION GRID ── */
+.mission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.mission-tile{aspect-ratio:1;border-radius:var(--radius-sm);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;border:3px solid;cursor:pointer;
+  transition:all 0.25s;text-align:center;padding:8px;position:relative;overflow:hidden;}
+.mission-tile::before{content:'';position:absolute;inset:0;opacity:0;
+  background:radial-gradient(circle,rgba(255,255,255,0.15) 0%,transparent 70%);
+  transition:opacity 0.2s;}
+.mission-tile:hover::before{opacity:1;}
+.mission-tile.completed{background:linear-gradient(135deg,rgba(46,204,113,0.25),rgba(39,174,96,0.1));
+  border-color:var(--green);box-shadow:0 0 16px rgba(46,204,113,0.3);}
+.mission-tile.available{background:linear-gradient(135deg,rgba(255,184,0,0.2),rgba(255,140,66,0.1));
+  border-color:var(--gold);animation:pulseTile 2s ease-in-out infinite;}
+@keyframes pulseTile{0%,100%{box-shadow:0 0 8px rgba(255,184,0,0.3),0 0 0 0 rgba(255,184,0,0.2);}
+  50%{box-shadow:0 0 20px rgba(255,184,0,0.5),0 0 0 6px rgba(255,184,0,0.08);}}
+.mission-tile.locked{background:rgba(0,0,0,0.3);border-color:rgba(255,255,255,0.1);
+  cursor:not-allowed;opacity:0.45;}
+.mission-tile:hover:not(.locked){transform:scale(1.08) translateY(-2px);}
+.mission-tile:active:not(.locked){transform:scale(0.96);}
+.mission-num{font-family:'Fredoka One',cursive;font-size:22px;color:var(--gold);}
+.mission-tile.completed .mission-num{color:var(--green);font-size:26px;}
+.mission-tile.locked .mission-num{color:var(--text-dim);}
+.mission-type-tag{font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:0.5px;color:var(--text-muted);}
+.mission-tile.completed .mission-type-tag{color:#6ECB90;}
+.mission-tile.available .mission-type-tag{color:var(--gold-light);}
+.mission-icon{font-size:22px;line-height:1;}
+
+/* ── XP BAR ── */
+.xp-bar-wrap{background:rgba(0,0,0,0.4);border-radius:20px;height:14px;overflow:hidden;
+  margin:10px 0;border:2px solid rgba(255,184,0,0.2);}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-light));
+  border-radius:20px;transition:width 0.8s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 12px rgba(255,184,0,0.6);position:relative;overflow:hidden;}
+.xp-bar-fill::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.3) 50%,transparent 100%);
+  animation:shimmer 2s infinite;}
+@keyframes shimmer{from{transform:translateX(-100%);}to{transform:translateX(100%);}}
+
+/* ── BADGES ── */
+.badge-row{display:flex;gap:14px;flex-wrap:wrap;}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;width:74px;}
+.badge-icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:26px;border:3px solid;}
+.badge-icon.earned{background:linear-gradient(135deg,rgba(255,184,0,0.3),rgba(255,140,66,0.1));
+  border-color:var(--gold);box-shadow:0 0 20px rgba(255,184,0,0.4);animation:badgeBob 3s ease-in-out infinite;}
+@keyframes badgeBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.badge-icon.locked{background:rgba(0,0,0,0.35);border-color:rgba(255,255,255,0.1);
+  filter:grayscale(1);opacity:0.35;}
+.badge-name{font-size:10px;font-weight:800;text-align:center;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:0.3px;}
+
+/* ── DAILY MISSION CARD ── */
+.daily-card{background:linear-gradient(135deg,rgba(52,152,219,0.25) 0%,rgba(116,185,255,0.1) 100%);
+  border:2px solid rgba(116,185,255,0.5);border-radius:var(--radius);padding:20px;margin-bottom:16px;
+  position:relative;overflow:hidden;}
+.daily-card::before{content:'📅';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.08;}
+.daily-label{font-size:12px;font-weight:800;color:var(--blue-light);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.daily-xp-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--orange));
+  color:#1A0A00;font-size:14px;font-weight:900;border-radius:20px;padding:4px 12px;margin-bottom:10px;}
+
+/* ── MISSION SCREEN ── */
+.mission-header{background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-mid) 100%);
+  border-bottom:3px solid rgba(255,184,0,0.3);padding:18px 20px;position:relative;z-index:10;}
+.mission-tag{display:inline-block;background:linear-gradient(135deg,rgba(255,184,0,0.25),rgba(255,140,66,0.15));
+  border:2px solid rgba(255,184,0,0.5);border-radius:24px;padding:5px 14px;
+  font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;
+  letter-spacing:0.5px;margin-bottom:10px;}
+.mission-title-big{font-family:'Fredoka One',cursive;font-size:21px;color:var(--text);line-height:1.3;}
+
+/* ── MISSION CONTENT ── */
+.scenario-box{background:rgba(0,0,0,0.3);border-left:4px solid var(--gold);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:16px 18px;
+  font-size:15px;line-height:1.7;color:var(--text-muted);margin-bottom:18px;}
+.question-label{font-size:14px;font-weight:800;color:var(--gold);
+  text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.journal-textarea{width:100%;background:rgba(0,0,0,0.35);
+  border:2px solid rgba(255,184,0,0.3);border-radius:var(--radius-sm);
+  padding:14px 16px;color:var(--text);font-family:'Nunito',sans-serif;
+  font-size:15px;line-height:1.7;resize:vertical;min-height:100px;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;margin-bottom:16px;}
+.journal-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,184,0,0.15);}
+
+/* ── SORT / TIMELINE / CONNECT ── */
+.sort-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.sort-col{background:rgba(0,0,0,0.2);border:2px dashed rgba(255,184,0,0.35);
+  border-radius:var(--radius-sm);padding:12px;min-height:130px;transition:all 0.2s;}
+.sort-col.drag-over{border-color:var(--gold);background:rgba(255,184,0,0.1);
+  box-shadow:0 0 16px rgba(255,184,0,0.2);}
+.sort-col-label{font-size:12px;font-weight:800;color:var(--gold);
+  text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;text-align:center;}
+.sort-card-item{background:linear-gradient(135deg,var(--bg-card2),var(--bg-card));
+  border:2px solid rgba(255,184,0,0.3);border-radius:10px;padding:10px 12px;
+  font-size:13px;font-weight:700;margin-bottom:8px;cursor:grab;
+  transition:all 0.2s;user-select:none;color:var(--text);}
+.sort-card-item:hover{border-color:var(--gold);transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(255,184,0,0.2);}
+.sort-bank{background:rgba(0,0,0,0.2);border:2px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-sm);padding:12px;min-height:70px;
+  margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;}
+.timeline-slots{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.timeline-slot{display:flex;align-items:center;gap:12px;}
+.timeline-num{font-family:'Fredoka One',cursive;font-size:18px;color:var(--gold);
+  width:28px;flex-shrink:0;text-align:center;}
+.timeline-drop-zone{flex:1;background:rgba(0,0,0,0.2);border:2px dashed rgba(255,184,0,0.3);
+  border-radius:var(--radius-sm);padding:10px 14px;min-height:46px;font-size:13px;
+  color:var(--text-dim);transition:all 0.2s;display:flex;align-items:center;}
+.timeline-drop-zone.drag-over{border-color:var(--gold);background:rgba(255,184,0,0.1);}
+.timeline-drop-zone.filled{border-color:var(--green);color:var(--text);
+  background:rgba(46,204,113,0.1);border-style:solid;}
+.connect-pairs{display:flex;gap:12px;margin-bottom:18px;}
+.connect-col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.connect-item{background:linear-gradient(135deg,var(--bg-card2),var(--bg-card));
+  border:2px solid rgba(255,184,0,0.25);border-radius:var(--radius-sm);
+  padding:12px 14px;font-size:13px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;text-align:center;line-height:1.4;color:var(--text);}
+.connect-item:hover{border-color:var(--gold);transform:scale(1.02);}
+.connect-item.selected{border-color:var(--gold);background:rgba(255,184,0,0.2);
+  box-shadow:0 0 14px rgba(255,184,0,0.3);}
+.connect-item.matched{border-color:var(--green);background:rgba(46,204,113,0.15);color:#6ECB90;}
+
+/* ── SUCCESS OVERLAY ── */
+.success-overlay{display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.85);align-items:center;justify-content:center;
+  flex-direction:column;gap:0;}
+.success-overlay.show{display:flex;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+.success-card{background:linear-gradient(135deg,#1E1A7A 0%,#2D2880 100%);
+  border:3px solid var(--gold);border-radius:var(--radius);padding:36px 28px;
+  text-align:center;max-width:340px;width:92%;
+  box-shadow:0 0 60px rgba(255,184,0,0.4);}
+.success-emoji{font-size:72px;margin-bottom:14px;animation:bounceIn 0.5s ease;}
+@keyframes bounceIn{0%{transform:scale(0);}60%{transform:scale(1.2);}100%{transform:scale(1);}}
+.success-title{font-family:'Fredoka One',cursive;font-size:28px;color:var(--gold);margin-bottom:8px;}
+.success-xp{font-size:42px;font-weight:900;color:var(--gold-light);margin:14px 0;
+  text-shadow:0 0 20px rgba(255,184,0,0.6);font-family:'Fredoka One',cursive;}
+.confetti-particle{position:absolute;width:10px;height:10px;border-radius:50%;animation:confettiFall 3s ease-in forwards;}
+@keyframes confettiFall{0%{transform:translateY(-100px) rotate(0);opacity:1;}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+
+/* ── TEACHER (PROFESSIONAL) ── */
+.teacher-header{
+  background:linear-gradient(135deg,#0A1628 0%,#0F2240 100%);
+  border-bottom:1px solid rgba(100,160,220,0.2);
+  padding:20px 28px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 20px rgba(0,0,0,0.5);}
+.teacher-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#E8F4FD;letter-spacing:-0.3px;}
+.teacher-content{background:linear-gradient(180deg,#0A1628 0%,#0C1E38 100%);flex:1;padding:28px;overflow-y:auto;padding-bottom:28px;}
+.student-row{background:rgba(255,255,255,0.03);border:1px solid rgba(100,160,220,0.12);
+  border-radius:12px;padding:16px 20px;margin-bottom:8px;
+  display:flex;align-items:center;gap:16px;cursor:pointer;transition:all 0.2s;}
+.student-row:hover{background:rgba(100,160,220,0.07);border-color:rgba(100,160,220,0.25);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.student-avatar{width:42px;height:42px;border-radius:10px;
+  background:linear-gradient(135deg,#1A4A7A 0%,#2D6FAD 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;color:#E8F4FD;flex-shrink:0;
+  border:1px solid rgba(100,160,220,0.3);}
+.student-info{flex:1;}
+.student-name{font-size:15px;font-weight:800;color:#E8F4FD;letter-spacing:-0.2px;}
+.student-meta{font-size:12px;color:#6A9DC0;margin-top:3px;font-weight:700;}
+.progress-mini{background:rgba(0,0,0,0.4);border-radius:6px;height:6px;width:80px;overflow:hidden;}
+.progress-mini-fill{height:100%;background:linear-gradient(90deg,#1A6FAD,#4DA3E0);border-radius:6px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.stat-card{background:rgba(255,255,255,0.03);border:1px solid rgba(100,160,220,0.15);
+  border-radius:12px;padding:20px;text-align:center;
+  transition:all 0.2s;}
+.stat-card:hover{background:rgba(100,160,220,0.07);border-color:rgba(100,160,220,0.3);}
+.stat-num{font-family:'Nunito',sans-serif;font-size:34px;font-weight:900;color:#4DA3E0;letter-spacing:-1px;}
+.stat-label{font-size:11px;font-weight:800;color:#4A7A9B;text-transform:uppercase;
+  letter-spacing:1px;margin-top:6px;}
+.code-box{background:rgba(0,0,0,0.35);border:1px solid rgba(100,160,220,0.25);
+  border-radius:14px;padding:24px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden;}
+.code-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(77,163,224,0.08) 0%,transparent 70%);pointer-events:none;}
+.class-code-display{font-family:'Nunito',sans-serif;font-size:38px;font-weight:900;color:#E8F4FD;
+  letter-spacing:8px;margin:6px 0;}
+.code-label{font-size:11px;font-weight:800;color:#4A7A9B;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+
+/* ── JOURNAL ── */
+.journal-entry{background:rgba(0,0,0,0.25);border:2px solid rgba(255,184,0,0.15);
+  border-left:4px solid var(--gold-dark);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:16px 18px;margin-bottom:12px;}
+.journal-entry-title{font-size:15px;font-weight:800;color:var(--gold);margin-bottom:8px;}
+.journal-entry-text{font-size:14px;line-height:1.7;color:var(--text-muted);}
+.journal-entry-meta{font-size:12px;color:var(--text-dim);margin-top:10px;font-weight:700;}
+
+/* ── PROFILE ── */
+.profile-hero{text-align:center;padding:24px 0 12px;margin-bottom:10px;}
+.profile-avatar{width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--orange));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:36px;color:var(--bg-dark);
+  margin:0 auto 14px;border:4px solid rgba(255,184,0,0.6);
+  box-shadow:0 0 30px rgba(255,184,0,0.4);animation:avatarGlow 3s ease-in-out infinite alternate;}
+@keyframes avatarGlow{from{box-shadow:0 0 20px rgba(255,184,0,0.3);}to{box-shadow:0 0 40px rgba(255,184,0,0.6);}}
+
+/* ── MAP ── */
+.map-item{background:rgba(0,0,0,0.2);border:2px solid rgba(255,184,0,0.15);
+  border-radius:var(--radius-sm);padding:14px 18px;display:flex;align-items:center;
+  gap:14px;cursor:pointer;transition:all 0.2s;margin-bottom:10px;}
+.map-item:hover{background:rgba(255,184,0,0.08);border-color:rgba(255,184,0,0.3);}
+.map-item-num{font-family:'Fredoka One',cursive;font-size:22px;color:var(--gold);
+  width:32px;text-align:center;flex-shrink:0;}
+.map-item-info{flex:1;}
+.map-item-title{font-size:14px;font-weight:800;color:var(--text);}
+.map-item-meta{font-size:12px;color:var(--text-muted);margin-top:3px;font-weight:700;}
+.map-item-status{font-size:12px;font-weight:800;padding:5px 10px;border-radius:20px;}
+.map-item-status.done{background:rgba(46,204,113,0.2);color:var(--green);}
+.map-item-status.open{background:rgba(255,184,0,0.2);color:var(--gold);}
+.map-item-status.lock{background:rgba(255,255,255,0.05);color:var(--text-dim);}
+
+/* ── MISC ── */
+.settings-item{background:rgba(0,0,0,0.2);border:2px solid rgba(255,184,0,0.12);
+  border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:10px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:background 0.2s;font-size:15px;font-weight:700;}
+.settings-item:hover{background:rgba(255,184,0,0.07);}
+.settings-item.danger{color:#E74C3C;border-color:rgba(231,76,60,0.25);}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:var(--bg-card);border:2px solid var(--gold);border-radius:28px;
+  padding:12px 24px;font-size:15px;font-weight:800;color:var(--gold-light);
+  z-index:300;opacity:0;pointer-events:none;transition:opacity 0.3s;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(255,184,0,0.3);}
+.toast.show{opacity:1;}
+
+/* ── LOGIN SCREEN ── */
+#screen-login{background:linear-gradient(160deg,#0F0C29 0%,#1A1550 50%,#0F0C29 100%);
+  align-items:center;justify-content:center;padding:24px;}
+.login-logo{font-family:'Fredoka One',cursive;font-size:52px;color:var(--gold);text-align:center;
+  text-shadow:0 0 40px rgba(255,184,0,0.6);margin-bottom:6px;
+  animation:logoFloat 3s ease-in-out infinite;}
+@keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.login-sub{font-size:16px;color:var(--text-muted);text-align:center;margin-bottom:36px;
+  font-weight:700;font-style:italic;}
+.login-box{width:100%;max-width:380px;
+  background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-mid) 100%);
+  border:2px solid rgba(255,184,0,0.35);border-radius:var(--radius);
+  padding:32px 28px;box-shadow:0 16px 48px rgba(0,0,0,0.5);}
+.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:26px;}
+.role-tab{padding:12px;border:2px solid rgba(255,184,0,0.25);border-radius:var(--radius-sm);
+  background:transparent;color:var(--text-muted);font-family:'Nunito',sans-serif;
+  font-size:16px;font-weight:800;cursor:pointer;text-align:center;transition:all 0.2s;}
+.role-tab.active{background:rgba(255,184,0,0.18);border-color:var(--gold);color:var(--gold-light);
+  box-shadow:0 0 14px rgba(255,184,0,0.2);}
+.divider{height:2px;background:rgba(255,184,0,0.15);margin:18px 0;border-radius:2px;}
+.pill{display:inline-block;background:rgba(255,184,0,0.15);border:1px solid rgba(255,184,0,0.35);
+  border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;
+  color:var(--gold-light);text-transform:uppercase;letter-spacing:0.5px;}
+.back-btn{background:none;border:none;color:var(--text-muted);font-family:'Nunito',sans-serif;
+  font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;
+  padding:0;transition:color 0.2s;}
+.back-btn:hover{color:var(--gold);}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-dim);}
+.empty-state .big{font-size:48px;margin-bottom:14px;}
+.t-section{font-size:11px;font-weight:800;color:#4A7A9B;text-transform:uppercase;
+  letter-spacing:1.5px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(100,160,220,0.1);}
+.no-students{text-align:center;padding:48px 18px;color:#4A7A9B;font-size:14px;font-weight:700;}
+
+/* ── LEVEL BADGE ── */
+.level-badge{display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(255,184,0,0.25),rgba(255,140,66,0.15));
+  border:2px solid var(--gold);border-radius:24px;padding:8px 18px;
+  font-family:'Fredoka One',cursive;font-size:22px;color:var(--gold);}
+
+/* ── ANSWER REQUIRED INDICATOR ── */
+.answer-required{border:2px solid rgba(255,71,87,0.5);border-radius:10px;padding:8px 14px;
+  background:rgba(255,71,87,0.1);color:#FF6B7A;font-size:13px;font-weight:800;
+  margin-bottom:10px;display:none;}
+.answer-required.show{display:block;}
+
+/* ── INTERACTION CHECK BUTTON ── */
+.check-btn-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.check-status{font-size:14px;font-weight:800;padding:8px 14px;border-radius:10px;display:none;}
+.check-status.correct{display:block;background:rgba(46,204,113,0.2);color:var(--green);}
+.check-status.partial{display:block;background:rgba(255,184,0,0.15);color:var(--gold);}
+
+/* ── DAILY MISSION MODAL ── */
+.daily-modal{display:none;position:fixed;inset:0;z-index:150;
+  background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:20px;}
+.daily-modal.show{display:flex;animation:fadeIn 0.3s ease;}
+.daily-modal-box{background:linear-gradient(135deg,#1E1A7A,#2D2880);
+  border:3px solid var(--blue-light);border-radius:var(--radius);
+  padding:28px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;}
+
+/* ── PURCHASE TABLE ── */
+.purchase-table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+.purchase-table th{background:rgba(255,184,0,0.2);color:var(--gold);font-size:13px;
+  font-weight:800;padding:10px;text-align:left;border-bottom:2px solid rgba(255,184,0,0.3);}
+.purchase-table td{padding:10px;font-size:14px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.08);}
+.purchase-table td input{background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);
+  border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:700;width:100%;outline:none;}
+.purchase-table td input:focus{border-color:var(--gold);}
+.add-row-btn{background:rgba(255,184,0,0.15);border:2px dashed rgba(255,184,0,0.4);
+  border-radius:10px;padding:8px 16px;color:var(--gold-light);font-size:14px;font-weight:800;
+  cursor:pointer;width:100%;margin-bottom:14px;transition:all 0.2s;}
+.add-row-btn:hover{background:rgba(255,184,0,0.25);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ SOUNDS (Web Audio) ══════════════════════════════ -->
+<script>
+// Simple Web Audio sound engine
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function getCtx(){if(!audioCtx){try{audioCtx=new AudioCtx();}catch(e){}}return audioCtx;}
+
+function playSound(type){
+  const ctx=getCtx(); if(!ctx) return;
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  const now=ctx.currentTime;
+  if(type==='click'){
+    o.frequency.setValueAtTime(800,now);o.frequency.exponentialRampToValueAtTime(1200,now+0.05);
+    g.gain.setValueAtTime(0.15,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.1);
+    o.start(now);o.stop(now+0.1);
+  } else if(type==='success'){
+    const freqs=[523,659,784,1047];
+    freqs.forEach((f,i)=>{
+      const o2=ctx.createOscillator(),g2=ctx.createGain();
+      o2.connect(g2);g2.connect(ctx.destination);
+      o2.frequency.value=f;g2.gain.setValueAtTime(0.18,now+i*0.1);
+      g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.2);
+      o2.start(now+i*0.1);o2.stop(now+i*0.1+0.2);
+    });
+  } else if(type==='correct'){
+    [523,659].forEach((f,i)=>{
+      const o2=ctx.createOscillator(),g2=ctx.createGain();
+      o2.connect(g2);g2.connect(ctx.destination);
+      o2.frequency.value=f;g2.gain.setValueAtTime(0.15,now+i*0.12);
+      g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.12+0.18);
+      o2.start(now+i*0.12);o2.stop(now+i*0.12+0.18);
+    });
+  } else if(type==='wrong'){
+    o.frequency.setValueAtTime(200,now);o.type='sawtooth';
+    g.gain.setValueAtTime(0.1,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.3);
+    o.start(now);o.stop(now+0.3);
+  } else if(type==='unlock'){
+    [392,523,659,784].forEach((f,i)=>{
+      const o2=ctx.createOscillator(),g2=ctx.createGain();
+      o2.connect(g2);g2.connect(ctx.destination);
+      o2.type='triangle';o2.frequency.value=f;
+      g2.gain.setValueAtTime(0.12,now+i*0.08);
+      g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.08+0.15);
+      o2.start(now+i*0.08);o2.stop(now+i*0.08+0.2);
+    });
+  } else if(type==='tap'){
+    o.frequency.setValueAtTime(1000,now);o.type='sine';
+    g.gain.setValueAtTime(0.08,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.05);
+    o.start(now);o.stop(now+0.05);
+  }
+}
+</script>
+
+<!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div style="text-align:center;margin-bottom:8px;">
+    <div style="font-size:64px;animation:logoFloat 3s ease-in-out infinite;">⚔️</div>
+  </div>
+  <div class="login-logo">BAYANI QUEST</div>
+  <p class="login-sub">🌟 Ikaw ang Tagasaliksik ng iyong komunidad 🌟</p>
+  <div class="login-box">
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole('student',this);playSound('tap')">🎒 Estudyante</button>
+      <button class="role-tab" onclick="setRole('teacher',this);playSound('tap')">📋 Guro</button>
+    </div>
+    <!-- Student -->
+    <div id="student-login">
+      <div class="input-group">
+        <label>Iyong Pangalan <span style="color:var(--red);font-size:12px;">*Kinakailangan</span></label>
+        <input type="text" class="input-field" id="student-name" placeholder="Hal. Juan dela Cruz">
+      </div>
+      <div class="input-group" id="code-group">
+        <label>Class Code <span style="color:var(--red);font-size:12px;">*Kinakailangan</span></label>
+        <input type="text" class="input-field" id="class-code-input" placeholder="Hal. BQ-4821" style="text-transform:uppercase;">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="no-code-check" onchange="toggleCodeInput(this)">
+        Pumasok nang walang class code
+      </label>
+      <div style="margin-top:24px;">
+        <button class="btn btn-gold btn-full" onclick="loginStudent();playSound('click')">🚀 Pumasok bilang Estudyante</button>
+      </div>
+    </div>
+    <!-- Teacher -->
+    <div id="teacher-login" style="display:none;">
+      <div class="input-group">
+        <label>Pangalan ng Guro <span style="color:var(--red);font-size:12px;">*Kinakailangan</span></label>
+        <input type="text" class="input-field" id="teacher-name-input" placeholder="Hal. G. Santos">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" class="input-field" id="teacher-pass" placeholder="••••••••">
+      </div>
+      <div style="margin-top:24px;">
+        <button class="btn btn-blue btn-full" onclick="loginTeacher();playSound('click')">📚 Pumasok bilang Guro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ STUDENT DASHBOARD ══════════════════════════════ -->
+<div id="screen-student" class="screen">
+  <div class="topbar">
+    <div class="topbar-title">⚔️ BAYANI QUEST</div>
+    <div class="topbar-xp" id="xp-display">50 XP</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="tab-home" class="content">
+    <div class="card card-gold" style="margin-bottom:18px;position:relative;overflow:hidden;">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:90px;opacity:0.07;">🏆</div>
+      <div style="font-size:13px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">ARALING PANLIPUNAN — GRADE 8</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);margin-bottom:6px;">Ikaw ang Tagasaliksik! 🔍</div>
+      <div style="font-size:15px;color:var(--text-muted);line-height:1.5;">Tuklasin ang kasaysayan, heograpiya, at lipunan sa pamamagitan ng tunay na mission.</div>
+    </div>
+
+    <!-- DAILY MISSION -->
+    <div class="daily-card" style="cursor:pointer;" onclick="openDailyMission()">
+      <div class="daily-label">📅 DAILY MISSION — Ngayon!</div>
+      <div style="font-size:17px;font-weight:900;color:#E8F4FD;margin-bottom:8px;">💰 Ang Aking Mga Gastos: Pag-aralan ang Iyong Budget</div>
+      <div class="daily-xp-badge">🌟 +150 XP</div>
+      <div style="font-size:14px;color:#5D9EC4;margin:8px 0 12px;font-weight:700;">Real-life na misyon para sa iyo ngayon!</div>
+      <button class="btn btn-sm btn-blue" onclick="openDailyMission();event.stopPropagation();">▶ Simulan ang Mission</button>
+    </div>
+
+    <div class="section-title">🗂️ Pumili ng Quarter</div>
+    <div class="quarter-tabs">
+      <div class="quarter-tab active" onclick="selectQuarter('Q1',this);playSound('tap')">🌏 Q1: Heograpiya at Sinaunang Kabihasnan</div>
+      <div class="quarter-tab" onclick="selectQuarter('Q2',this);playSound('tap')">⚔️ Q2: Klasiko at Transisyonal</div>
+      <div class="quarter-tab" onclick="selectQuarter('Q3',this);playSound('tap')">🏭 Q3: Makabagong Daigdig</div>
+      <div class="quarter-tab" onclick="selectQuarter('Q4',this);playSound('tap')">🌐 Q4: Kontemporanyong Daigdig</div>
+    </div>
+    <div class="section-title" id="mission-quarter-label">🏅 Q1 — Mga Mission</div>
+    <div class="mission-grid" id="mission-grid"></div>
+  </div>
+
+  <!-- MAP -->
+  <div id="tab-map" class="content" style="display:none;">
+    <div class="section-title">🗺️ Mapa ng Lahat ng Mission</div>
+    <div id="map-list"></div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div id="tab-journal" class="content" style="display:none;">
+    <div class="section-title">📖 Aking Journal</div>
+    <div id="journal-list"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="tab-profile" class="content" style="display:none;">
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profile-initial">J</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:26px;" id="profile-name-display">Juan</div>
+      <div style="font-size:15px;color:var(--text-muted);margin-top:6px;font-weight:700;" id="profile-class-display">Grade 8 · Walang Code</div>
+      <div style="margin-top:12px;" id="level-badge-wrap">
+        <span class="level-badge">🏅 Level <span id="level-display">1</span></span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:800;color:var(--text-muted);">Kabuuang XP</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:26px;color:var(--gold);" id="profile-xp">50 XP</div>
+      </div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="profile-xp-bar" style="width:2%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-dim);font-weight:700;"><span>0 XP</span><span>2500 XP</span></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;gap:10px;text-align:center;">
+        <div style="flex:1;">
+          <div style="font-family:'Fredoka One',cursive;font-size:28px;color:var(--gold);" id="missions-count">0</div>
+          <div style="font-size:12px;font-weight:800;color:var(--text-dim);text-transform:uppercase;">Missions</div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-family:'Fredoka One',cursive;font-size:28px;color:var(--purple);" id="badges-count">0</div>
+          <div style="font-size:12px;font-weight:800;color:var(--text-dim);text-transform:uppercase;">Badges</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">🏆 Mga Badge</div>
+    <div class="card">
+      <div class="badge-row">
+        <div class="badge"><div class="badge-icon locked" id="badge-1">⭐</div><div class="badge-name">Simula</div></div>
+        <div class="badge"><div class="badge-icon locked" id="badge-2">🔥</div><div class="badge-name">Manlalaban</div></div>
+        <div class="badge"><div class="badge-icon locked" id="badge-3">⚔️</div><div class="badge-name">Bayani</div></div>
+        <div class="badge"><div class="badge-icon locked" id="badge-4">🏆</div><div class="badge-name">Kampeon</div></div>
+        <div class="badge"><div class="badge-icon locked" id="badge-5">👑</div><div class="badge-name">Tagasaliksik</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="settings-item" onclick="logout();playSound('click')">
+        <span>🚪</span><span>Mag-logout</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottomnav">
+    <button class="nav-btn active" id="nav-home" onclick="switchTab('home');playSound('tap')"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-btn" id="nav-map" onclick="switchTab('map');playSound('tap')"><span class="nav-icon">🗺️</span>Mapa</button>
+    <button class="nav-btn" id="nav-journal" onclick="switchTab('journal');playSound('tap')"><span class="nav-icon">📖</span>Journal</button>
+    <button class="nav-btn" id="nav-profile" onclick="switchTab('profile');playSound('tap')"><span class="nav-icon">👤</span>Profile</button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════ MISSION SCREEN ══════════════════════════════ -->
+<div id="screen-mission" class="screen">
+  <div class="mission-header">
+    <button class="back-btn" onclick="goBack();playSound('tap')">← Bumalik</button>
+    <div style="margin-top:12px;">
+      <div class="mission-tag" id="mission-tag">Tuklasin</div>
+      <div class="mission-title-big" id="mission-title-big">Mission Title</div>
+    </div>
+  </div>
+  <div class="content" id="mission-content-area"></div>
+</div>
+
+<!-- ══════════════════════════════ TEACHER DASHBOARD ══════════════════════════════ -->
+<div id="screen-teacher" class="screen">
+  <div id="teacher-view-home" style="display:flex;flex-direction:column;min-height:100vh;">
+    <div class="teacher-header">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#4A7A9B;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Dashboard ng Guro</div>
+        <div class="teacher-title" id="teacher-name-display">Guro</div>
+      </div>
+      <button style="background:transparent;border:1px solid rgba(231,76,60,0.4);color:#C0392B;font-family:Nunito,sans-serif;font-size:13px;font-weight:800;border-radius:8px;padding:8px 16px;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;" onmouseover="this.style.background='rgba(192,57,43,0.12)'" onmouseout="this.style.background='transparent'" onclick="logout();playSound('click')">Mag-logout</button>
+    </div>
+    <div class="teacher-content">
+      <div class="code-box">
+        <div class="code-label">Class Code ng Inyong Klase</div>
+        <div class="class-code-display" id="teacher-code-display">BQ-0000</div>
+        <div style="font-size:12px;color:#4A7A9B;margin-top:12px;font-weight:700;letter-spacing:0.3px;">Ibigay ito sa inyong mga estudyante para makapasok sa klase</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="stat-students">0</div><div class="stat-label">Estudyante</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-missions">0</div><div class="stat-label">Missions Tapos</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-active">0</div><div class="stat-label">Nag-join</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-avg">0%</div><div class="stat-label">Avg. Progress</div></div>
+      </div>
+      <div class="t-section">Listahan ng Estudyante</div>
+      <div id="student-list-teacher">
+        <div class="no-students">Wala pang estudyante na nag-join.<br>Ibahagi ang class code sa itaas.</div>
+      </div>
+    </div>
+  </div>
+  <div id="teacher-view-journal" style="display:none;flex-direction:column;min-height:100vh;">
+    <div class="teacher-header">
+      <button class="back-btn" style="color:#6A9DC0;" onclick="closeStudentJournal()">← Bumalik</button>
+    </div>
+    <div class="teacher-content" style="flex:1;">
+      <div style="background:rgba(77,163,224,0.08);border:1px solid rgba(77,163,224,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:16px;font-weight:800;color:#E8F4FD;" id="journal-student-name">Journal</div>
+      <div id="teacher-journal-entries"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ SUCCESS OVERLAY ══════════════════════════════ -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card" style="position:relative;">
+    <div id="confetti-container" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:var(--radius);"></div>
+    <div class="success-emoji">🎉</div>
+    <div class="success-title">Pagbati!</div>
+    <div style="font-size:15px;color:var(--text-muted);font-weight:700;">Na-save na sa iyong journal</div>
+    <div class="success-xp" id="success-xp-amount">+100 XP</div>
+    <div style="font-size:15px;color:var(--text-muted);margin-bottom:24px;font-weight:700;" id="success-msg">Mahusay!</div>
+    <button class="btn btn-gold btn-full" onclick="closeSuccess();playSound('click')">🚀 Magpatuloy →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ DAILY MISSION MODAL ══════════════════════════════ -->
+<div class="daily-modal" id="daily-modal">
+  <div class="daily-modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:20px;color:var(--blue-light);">📅 Daily Mission</div>
+      <button onclick="closeDailyMission()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-family:'Fredoka One',cursive;font-size:19px;color:var(--text);margin-bottom:6px;">💰 Ang Aking Mga Gastos: Pag-aralan ang Iyong Budget</div>
+    <div class="daily-xp-badge" style="margin-bottom:14px;">🌟 +150 XP</div>
+
+    <div class="scenario-box" style="margin-bottom:16px;font-size:15px;">
+      💡 Sa buhay, mahalagang malaman kung paano natin ginagastos ang aming pera. Ang pag-iisip tungkol sa ating mga binibili ay tumutulong sa atin na maging mas matalino sa paggamit ng pera. Gawin natin ito ngayon!
+    </div>
+
+    <!-- PART 1: Purchase List -->
+    <div class="question-label">📝 Bahagi 1: Listahan ng mga Binili</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;font-weight:700;">Isulat ang 3–5 bagay na binili mo o ng iyong pamilya kamakailan lang (kain, damit, school supplies, etc.):</div>
+
+    <table class="purchase-table" id="purchase-table">
+      <tr>
+        <th>Produkto / Serbisyo</th>
+        <th>Halaga (₱)</th>
+        <th>Uri</th>
+      </tr>
+      <tr>
+        <td><input type="text" placeholder="Hal. Bigas, 5kg" class="purchase-input"></td>
+        <td><input type="number" placeholder="350" class="purchase-input" min="0"></td>
+        <td><select class="purchase-input" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);border-radius:8px;padding:6px;color:var(--text);font-family:Nunito,sans-serif;font-size:14px;font-weight:700;width:100%;">
+          <option value="">Piliin...</option>
+          <option>Pagkain</option><option>Damit</option><option>Paaralan</option>
+          <option>Libangan</option><option>Bahay</option><option>Iba pa</option>
+        </select></td>
+      </tr>
+      <tr>
+        <td><input type="text" placeholder="Hal. Sapatos" class="purchase-input"></td>
+        <td><input type="number" placeholder="500" class="purchase-input" min="0"></td>
+        <td><select class="purchase-input" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);border-radius:8px;padding:6px;color:var(--text);font-family:Nunito,sans-serif;font-size:14px;font-weight:700;width:100%;">
+          <option value="">Piliin...</option>
+          <option>Pagkain</option><option>Damit</option><option>Paaralan</option>
+          <option>Libangan</option><option>Bahay</option><option>Iba pa</option>
+        </select></td>
+      </tr>
+      <tr>
+        <td><input type="text" placeholder="Hal. Notebook" class="purchase-input"></td>
+        <td><input type="number" placeholder="45" class="purchase-input" min="0"></td>
+        <td><select class="purchase-input" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);border-radius:8px;padding:6px;color:var(--text);font-family:Nunito,sans-serif;font-size:14px;font-weight:700;width:100%;">
+          <option value="">Piliin...</option>
+          <option>Pagkain</option><option>Damit</option><option>Paaralan</option>
+          <option>Libangan</option><option>Bahay</option><option>Iba pa</option>
+        </select></td>
+      </tr>
+    </table>
+    <button class="add-row-btn" onclick="addPurchaseRow()">＋ Magdagdag ng Item</button>
+
+    <!-- PART 2: Reflection -->
+    <div class="question-label" style="margin-top:8px;">💭 Bahagi 2: Pagmumuni-muni</div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;">1. Alin sa iyong mga binili ang pinaka-kailangan at bakit?</div>
+      <textarea class="journal-textarea" id="daily-ans-1" placeholder="Isulat ang iyong sagot dito…" rows="3"></textarea>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;">2. May binili ka bang hindi mo talaga kailangan? Paano mo magagamit ang pera para sa mas kapaki-pakinabang na bagay?</div>
+      <textarea class="journal-textarea" id="daily-ans-2" placeholder="Isulat ang iyong sagot dito…" rows="3"></textarea>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;">3. Ano ang natutunan mo tungkol sa iyong mga gastos? Paano ka magiging mas matalino sa paggamit ng pera?</div>
+      <textarea class="journal-textarea" id="daily-ans-3" placeholder="Isulat ang iyong sagot dito…" rows="3"></textarea>
+    </div>
+
+    <div class="answer-required" id="daily-error">⚠️ Sagutan ang lahat ng tanong at listahan bago mag-submit!</div>
+
+    <button class="btn btn-gold btn-full" onclick="submitDailyMission();playSound('click')">✅ I-Submit ang Daily Mission (+150 XP)</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<style>
+.purchase-input{background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);border-radius:8px;
+  padding:6px 10px;color:var(--text);font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:700;width:100%;outline:none;}
+.purchase-input:focus{border-color:var(--gold);}
+</style>
+
+<script>
+// ══════════════════════════════
+// SHARED DATA STORE
+// ══════════════════════════════
+function getStore(){try{return JSON.parse(localStorage.getItem('bq_store')||'null')||{rooms:{},students:{}};}catch(e){return{rooms:{},students:{}};}}
+function saveStore(s){localStorage.setItem('bq_store',JSON.stringify(s));}
+
+let S={role:'student',studentId:null,teacherCode:null,currentMission:null,currentQuarter:'Q1'};
+
+// ══════════════════════════════
+// MISSION DATA
+// ══════════════════════════════
+const MISSIONS={
+  Q1:[
+    {id:1,type:'Tuklasin',xp:100,title:'Ang Limang Tema ng Heograpiya sa Aking Komunidad',lesson:'Heograpiyang Pisikal: Limang Tema ng Heograpiya',scenario:'Ang limang tema ng heograpiya ay: Lokasyon, Lugar, Ugnayang Tao-Kapaligiran, Galaw, at Rehiyon. Ang mga temang ito ay ginagamit ng mga heograpikong pag-aralan ang anumang lugar sa mundo — kasama na ang inyong sariling komunidad.',questions:['Ilapat ang limang tema ng heograpiya sa inyong sariling barangay o bayan. Para sa bawat tema, magbigay ng isang tiyak na halimbawa.','Alin sa limang tema ang pinakamahalaga para maunawaan ang inyong komunidad? Ipaliwanag ang inyong sagot.','Paano makakatulong ang pag-aaral ng heograpiya sa paglutas ng mga suliranin sa inyong lugar?'],interactionType:'reflection'},
+    {id:2,type:'Suriin',xp:100,title:'Topograpiya: Anyong Lupa at Anyong Tubig ng Pilipinas',lesson:'Heograpiyang Pisikal: Topograpiya at Katangiang Pisikal',scenario:'Ang Pilipinas ay binubuo ng higit 7,000 isla na may iba\'t ibang topograpiya — mataas na bundok, mababang kapatagan, mahabang baybayin, at maraming ilog at lawa.',questions:null,interactionType:'sort',sortData:{items:['Bundok Apo','Lawa ng Lanao','Bulkang Mayon','Ilog Cagayan','Kapatagang Sentral','Dagat Sulu'],col1:'Anyong Lupa',col2:'Anyong Tubig',answers:{'Bundok Apo':'Anyong Lupa','Lawa ng Lanao':'Anyong Tubig','Bulkang Mayon':'Anyong Lupa','Ilog Cagayan':'Anyong Tubig','Kapatagang Sentral':'Anyong Lupa','Dagat Sulu':'Anyong Tubig'}}},
+    {id:3,type:'Gawin',xp:100,title:'Sumulat: Ikaw ang Tagapagsalita ng Iyong Rehiyon',lesson:'Heograpiyang Pantao: Natatanging Kultura ng mga Rehiyon',scenario:'Ang Pilipinas ay nahahati sa iba\'t ibang rehiyon, bawat isa ay may sariling kultura, wika, relihiyon, at pagkakakilanlan.',questions:['Ilarawan ang kultura ng inyong rehiyon — anong wika, tradisyon, at pagkain ang nagpapakilala dito?','Paano nagkakaiba ang inyong rehiyon mula sa ibang rehiyon ng Pilipinas? Magbigay ng tatlong pagkakaiba.','Ano ang isang kultura o tradisyon sa inyong rehiyon na nais mong ipagpatuloy sa susunod na henerasyon? Bakit?'],interactionType:'reflection'},
+    {id:4,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Sinaunang Kabihasnan',lesson:'Sinaunang Kabihasnan ng Daigdig',scenario:'Ilagay ang mga sumusunod na sinaunang kabihasnan sa tamang pagkakasunod ng kanilang pagsisimula.',interactionType:'timeline',timelineData:{items:['Kabihasnan ng Mesopotamia (3500 BCE)','Kabihasnan ng Egypt (3100 BCE)','Kabihasnan ng Indus Valley (2600 BCE)','Kabihasnan ng China (2000 BCE)'],correct:['Kabihasnan ng Mesopotamia (3500 BCE)','Kabihasnan ng Egypt (3100 BCE)','Kabihasnan ng Indus Valley (2600 BCE)','Kabihasnan ng China (2000 BCE)']}},
+    {id:5,type:'Ipagtanggol',xp:100,title:'Ang Pilipinas: Dapat bang Sumali sa isang Malaking Unyon ng Asya?',lesson:'Heograpiya at Pandaigdigang Relasyon',scenario:'Isipin na may plano para sa isang "United States of Asia" — isang unyon ng lahat ng bansa sa Asya, katulad ng European Union. Ilang bansa ay sumusuporta rito, habang ang iba naman ay tutol.',questions:['Susuportahan mo ba ang pagsali ng Pilipinas sa isang Asian Union? Ipaliwanag ang tatlong dahilan ng iyong sagot.','Ano ang mga posibleng benepisyo at panganib ng pagiging bahagi ng gayong unyon para sa mga Pilipino?','Paano makakaapekto ang heograpiya ng Pilipinas sa papel nito sa isang Asian Union?'],interactionType:'reflection'},
+    {id:6,type:'Suriin',xp:100,title:'I-Connect: Sinaunang Kabihasnan at Kanilang Kontribusyon',lesson:'Kontribusyon ng Sinaunang Kabihasnan',scenario:'Itugma ang bawat sinaunang kabihasnan sa pangunahing kontribusyon nito sa sangkatauhan.',questions:null,interactionType:'connect',connectData:{left:['Mesopotamia','Egypt','Greece','China'],right:['Unang sistema ng pagsulat (Cuneiform)','Piramide at mummification','Demokrasya at pilosopiya','Papel at pulbura'],pairs:{0:0,1:1,2:2,3:3}}},
+    {id:7,type:'Gawin',xp:100,title:'Liham Para sa Kinabukasan: Kung Ikaw ay Nabuhay sa Sinaunang Panahon',lesson:'Buhay sa Sinaunang Kabihasnan',scenario:'Isipin na ikaw ay isang kabataang naninirahan sa sinaunang kabihasnan ng iyong pinili — Mesopotamia, Egypt, Greece, China, o Indiyus Valley.',questions:['Saang sinaunang kabihasnan ka nais na nabuhay at bakit? Ilarawan ang iyong pang-araw-araw na buhay.','Ano ang pinakamalaking hamon na kinakaharap mo bilang kabataan sa panahong iyon?','Paano naiiba ang iyong buhay noon kumpara sa buhay ng kabataan ngayon sa Pilipinas?'],interactionType:'reflection'},
+    {id:8,type:'Maging Sila',xp:100,title:'Ikaw ay isang Pilipinong Bayani noong Prekolonyal na Panahon',lesson:'Prekolonyal na Pilipinas at Pamumuno',scenario:'Bago dumating ang mga Espanyol, ang Pilipinas ay binubuo ng mga barangay — maliliit na komunidad na pinamumunuan ng datu o rajah. Ikaw ay isa sa mga pinuno ng barangay sa tabing-dagat.',questions:['Bilang isang datu, paano mo pamamahalaan ang iyong barangay? Ano ang iyong mga priyoridad?','May dumating na mga mangangalakal mula sa ibang bansa. Makikipagtrade ka ba o mag-iingat ka? Bakit?','Paano mo ihahambing ang sistema ng pamumuno ng prekolonyal na barangay sa modernong pamahalaan ngayon?'],interactionType:'reflection'},
+    {id:9,type:'Tuklasin',xp:100,title:'Ang Silk Road: Landas ng Kalakalan at Kulturang Pandaigdig',lesson:'Sinaunang Kalakalan at Ugnayan ng mga Kabihasnan',scenario:'Ang Silk Road ay isang network ng mga ruta ng kalakalan na nag-uugnay ng China, Gitnang Asya, Middle East, at Europe mula ika-2 siglo BCE hanggang ika-15 siglo CE. Hindi lamang kalakal ang ipinagpalit — kundi pati na rin relihiyon, teknolohiya, at kultura.',questions:['Paano nakatulong ang Silk Road sa pagpapalaganap ng mga relihiyon tulad ng Islam at Budismo sa buong Asya?','Anong mga kalakal ang ipinagpalit sa Silk Road? Bakit mahalaga ang mga ito sa mga sinaunang lipunan?','Mayroon bang modernong katumbas ng Silk Road sa kasalukuyan? Ipaliwanag ang iyong sagot.'],interactionType:'reflection'},
+    {id:10,type:'Suriin',xp:100,title:'I-Sort: Mga Kontribusyon ng Sinaunang Pilipinas',lesson:'Kultura at Lipunan ng Prekolonyal na Pilipinas',scenario:'Suriin ang mga sumusunod na aspeto ng kultura at tukuyin kung ito ay nagmula sa prekolonyal na Pilipinas o sa impluwensiya ng mga dayuhan.',questions:null,interactionType:'sort',sortData:{items:['Alibata/Baybayin na pagsulat','Sistemang encomienda','Tradisyonal na anito at animismo','Pagtatayo ng Intramuros','Kultura ng bayanihan','Paggamit ng rosaryo'],col1:'Prekolonyal na Pilipinas',col2:'Impluwensiya ng Dayuhan',answers:{'Alibata/Baybayin na pagsulat':'Prekolonyal na Pilipinas','Sistemang encomienda':'Impluwensiya ng Dayuhan','Tradisyonal na anito at animismo':'Prekolonyal na Pilipinas','Pagtatayo ng Intramuros':'Impluwensiya ng Dayuhan','Kultura ng bayanihan':'Prekolonyal na Pilipinas','Paggamit ng rosaryo':'Impluwensiya ng Dayuhan'}}},
+    {id:11,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Pangyayari sa Prekolonyal na Pilipinas',lesson:'Kasaysayan ng Prekolonyal na Pilipinas',scenario:'Ilagay ang mga sumusunod na makasaysayang pangyayari sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Pagdating ng Magellan sa Pilipinas (1521)','Pagtatayo ng Maynila bilang kolonyal na kabisera (1571)','Unang Pilipino sa Pilipinas (~30,000 BCE)','Pagsisimula ng kalakalan sa China (~900 CE)'],correct:['Unang Pilipino sa Pilipinas (~30,000 BCE)','Pagsisimula ng kalakalan sa China (~900 CE)','Pagdating ng Magellan sa Pilipinas (1521)','Pagtatayo ng Maynila bilang kolonyal na kabisera (1571)']}},
+    {id:12,type:'Maging Sila',xp:100,title:'Ikaw ay si Lapu-Lapu: Ang Tagapagtanggol ng Mactan',lesson:'Pakikipaglaban ng mga Pilipino sa Kolonyalismo',scenario:'Abril 27, 1521. Ikaw ay si Lapu-Lapu, ang pinuno ng Mactan. Nakatanggap ka ng mensahe mula kay Magellan na nagtatanong ng pagpapasakop. Alam mong ang iyong mga mandirigma ay mas mababa ang bilang at mas mahina ang sandata.',questions:['Ano ang iyong sagot kay Magellan at bakit ka nagdesisyong lumaban kahit hindi pabor ang sitwasyon?','Ano ang iyong naramdaman noong mabigo si Magellan at ang kanyang mga sundalo? Ano ang mensahe nito para sa iyong bayan?','Paano naisasalamin ng pakikipaglaban ni Lapu-Lapu ang diwa ng pagiging Pilipino hanggang ngayon?'],interactionType:'reflection'}
+  ],
+  Q2:[
+    {id:1,type:'Tuklasin',xp:100,title:'Ang Kolonisasyon ng Pilipinas: Pagsisimula ng Bagong Kabanata',lesson:'Espanyol na Kolonisasyon ng Pilipinas',scenario:'Noong 1565, dumating si Miguel López de Legazpi sa Pilipinas at sinimulan ang opisyal na kolonisasyon ng Espanya. Sa loob ng mahigit 300 taon, pinalitan ng mga Espanyol ang maraming aspeto ng buhay ng mga Pilipino — relihiyon, kultura, pamahalaan, at ekonomiya.',questions:['Ano ang mga pangunahing pagbabago na dinulot ng Espanyol na kolonyalismo sa lipunan ng mga Pilipino?','Paano tinanggap ng iba\'t ibang pangkat ng mga Pilipino ang kolonyalismo — may tumutol, may tumatanggap?','Sa iyong palagay, mas maraming pinsala o mas maraming benepisyo ang dulot ng kolonyalismo sa Pilipinas?'],interactionType:'reflection'},
+    {id:2,type:'Suriin',xp:100,title:'I-Sort: Dahilan at Epekto ng Espanyol na Kolonyalismo',lesson:'Epekto ng Kolonyalismo sa Pilipinas',scenario:'Tukuyin kung ang bawat sumusunod na pangyayari ay isang dahilan o epekto ng Espanyol na kolonyalismo sa Pilipinas.',questions:null,interactionType:'sort',sortData:{items:['Paghahanap ng kalakalan at espesya','Pagtatayo ng Simbahang Katoliko','Sistemang encomienda','Pagpapalawak ng kapangyarihang Espanyol','Pag-usbong ng ilustrado class','Propagandang Kilusan'],col1:'Dahilan ng Kolonyalismo',col2:'Epekto ng Kolonyalismo',answers:{'Paghahanap ng kalakalan at espesya':'Dahilan ng Kolonyalismo','Pagtatayo ng Simbahang Katoliko':'Epekto ng Kolonyalismo','Sistemang encomienda':'Epekto ng Kolonyalismo','Pagpapalawak ng kapangyarihang Espanyol':'Dahilan ng Kolonyalismo','Pag-usbong ng ilustrado class':'Epekto ng Kolonyalismo','Propagandang Kilusan':'Epekto ng Kolonyalismo'}}},
+    {id:3,type:'Gawin',xp:100,title:'Sulatan: Liham ng Isang Ilustrado sa Espanya',lesson:'Kilusang Propaganda at Reporma',scenario:'1890, Madrid. Ikaw ay isang ilustradong Pilipino na nag-aaral sa Espanya. Nakita mo ang pagkakaiba ng kalayaan at karapatan ng mga mamamayan sa Europa kumpara sa mga Pilipino sa ilalim ng kolonyal na pamahalaaan.',questions:['Isulat ang liham mo sa Gobernador-Heneral ng Pilipinas. Ano ang mga reporma ang iyong hihilingin at bakit?','Paano mo ihahambing ang buhay ng mga Pilipino sa ilalim ng kolonyalismo kumpara sa mga Europeo?','Naniniwala ka ba sa reporma o sa rebolusyon bilang solusyon sa mga suliranin ng Pilipinas? Bakit?'],interactionType:'reflection'},
+    {id:4,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Makasaysayang Pangyayari sa Panahon ng Espanyol',lesson:'Kasaysayan ng Espanyol na Kolonyalismo',scenario:'Ilagay ang mga sumusunod na makasaysayang pangyayari sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Pagsisimula ng Rebolusyong Pilipino (1896)','Pagdating ni Legazpi (1565)','Pagtatayo ng Kilusang Propaganda (1880s)','Pagkamatay ni Rizal (1896)'],correct:['Pagdating ni Legazpi (1565)','Pagtatayo ng Kilusang Propaganda (1880s)','Pagsisimula ng Rebolusyong Pilipino (1896)','Pagkamatay ni Rizal (1896)']}},
+    {id:5,type:'Ipagtanggol',xp:100,title:'Si Jose Rizal: Bayani o Traydor sa Rebolusyon?',lesson:'Si Jose Rizal at ang Kilusang Pambansa',scenario:'Si Jose Rizal ay itinuturing na pambansang bayani ng Pilipinas. Ngunit noong buhay niya, marami ang nagtatanong: Sapat ba ang kanyang landas ng reporma, o dapat ay sumama siya sa armadong rebolusyon ni Bonifacio?',questions:['Sa iyong palagay, tama ba ang desisyon ni Rizal na manatili sa landas ng reporma sa halip na rebolusyon? Bakit?','Kung ikaw ay si Rizal noong 1896, ano ang iyong gagawin — reporma o rebolusyon?','Paano naiimpluwensiyahan ng pamana ni Rizal ang mga Pilipino ngayon?'],interactionType:'reflection'},
+    {id:6,type:'Maging Sila',xp:100,title:'Ikaw ay si Andres Bonifacio: Ang Ama ng Rebolusyon',lesson:'Rebolusyong Pilipino at Katipunan',scenario:'1896. Ikaw ay si Andres Bonifacio, tagapagtatag ng Katipunan. Nagbunyag na ang inyong lihim na samahan. Ngayon, kailangan mong magdesisyon — simulan na ba ang rebolusyon ngayon, o maghintay pa?',questions:['Paano mo mapaghahandaan ang iyong mga mandirigma para sa isang bukas na labanan laban sa mga Espanyol?','Ano ang iyong mensahe sa mga Pilipinong takot na sumama sa rebolusyon?','Paano naiimpluwensiyahan ng iyong likurang-buhay bilang karaniwang manggagawa ang iyong pananaw sa kalayaan?'],interactionType:'reflection'},
+    {id:7,type:'Tuklasin',xp:100,title:'Ang Republika ng Malolos: Unang Demokratikong Republika sa Asya',lesson:'Republika ng Malolos at Konstitusyon nito',scenario:'Noong Enero 23, 1899, isinilang ang Republika ng Malolos — ang unang demokratikong republika sa Asya. Ngunit maikli ang kanyang buhay dahil nagsimula ang Digmaang Pilipino-Amerikano.',questions:['Bakit makasaysayan ang Republika ng Malolos para sa buong Asya, hindi lamang sa Pilipinas?','Ano ang mga pangunahing prinsipyo ng Konstitusyon ng Malolos? Paano katulad o naiiba ito sa kasalukuyang Konstitusyon ng Pilipinas?','Naniniwala ka bang naghanda ang mga Pilipino noon para sa tunay na kalayaan? Ipaliwanag.'],interactionType:'reflection'},
+    {id:8,type:'Suriin',xp:100,title:'I-Connect: Mga Bayani ng Pilipinas at Kanilang Kontribusyon',lesson:'Mga Bayani ng Kilusang Pambansa',scenario:'Itugma ang bawat bayani sa kanyang pangunahing kontribusyon sa kasaysayan ng Pilipinas.',questions:null,interactionType:'connect',connectData:{left:['Jose Rizal','Andres Bonifacio','Emilio Aguinaldo','Marcelo del Pilar'],right:['Noli Me Tangere at El Filibusterismo','Pagtatatag ng Katipunan','Unang Presidente ng Pilipinas','La Solidaridad at Kilusang Propaganda'],pairs:{0:0,1:1,2:2,3:3}}},
+    {id:9,type:'Gawin',xp:100,title:'Talumpati: Kung Ikaw ang Nag-anunsyo ng Kalayaan ng Pilipinas',lesson:'Pagdating ng Kalayaan ng Pilipinas',scenario:'Hunyo 12, 1898. Ikaw ay si Emilio Aguinaldo. Matapos ang mahigit 300 taon ng kolonyalismo, ngayon ay itinatanyag mo ang kalayaan ng Pilipinas sa Kawit, Cavite.',questions:['Isulat ang bahagi ng iyong talumpati — ano ang iyong sasabihin sa mga Pilipino sa sandaling ito?','Ano ang iyong mga plano para sa bagong bansang Pilipinas? Anong mga pagbabago ang gusto mong ipatupad?','Ano ang iyong mensahe sa mga susunod na henerasyong Pilipino tungkol sa kahalagahan ng kalayaan?'],interactionType:'reflection'},
+    {id:10,type:'Tuklasin',xp:100,title:'Ang Amerikanong Panahon: Bagong Kolonyalismo?',lesson:'Amerikanong Pananakop at Impluwensiya sa Pilipinas',scenario:'Pagkatapos ng Espanyol-Amerikanong Digmaan ng 1898, ang Pilipinas ay naging teritoryo ng Estados Unidos. Nagdala ang mga Amerikano ng sistemang edukasyon, demokratikong pamahalaan, at modernong imprastraktura — ngunit kasabay nito, patuloy na naging kolonya ang Pilipinas.',questions:['Ano ang mga positibo at negatibong epekto ng Amerikanong pamamahala sa Pilipinas?','Paano binago ng Amerikanong sistema ng edukasyon ang kultura at pagpapahalaga ng mga Pilipino?','Sa iyong palagay, ang Amerikanong pananakop ba ay mas malumanay o mas mapang-api kaysa sa Espanyol? Ipaliwanag.'],interactionType:'reflection'},
+    {id:11,type:'Timeline',xp:100,title:'Mula Kolonyalismo hanggang Kalayaan',lesson:'Kasaysayan ng Pakikipaglaban para sa Kalayaan',scenario:'Ilagay ang mga sumusunod na pangyayari sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Pagpirma ng Tydings-McDuffie Act (1934)','Opisyal na Kalayaan ng Pilipinas (1946)','Pagsisimula ng Komonwelt (1935)','Pagtatapos ng Digmaang Pilipino-Amerikano (1902)'],correct:['Pagtatapos ng Digmaang Pilipino-Amerikano (1902)','Pagpirma ng Tydings-McDuffie Act (1934)','Pagsisimula ng Komonwelt (1935)','Opisyal na Kalayaan ng Pilipinas (1946)']}},
+    {id:12,type:'Maging Sila',xp:100,title:'Ikaw ay isang Pilipinong Guro sa Panahon ng Amerikano',lesson:'Edukasyon sa Panahon ng Amerikanong Kolonyalismo',scenario:'1901. Ikaw ay isang Pilipinong natutunan mag-Ingles at ngayon ay nagtuturo sa isang paaralan na itinayo ng mga Amerikano. Ang wikang Ingles ay sapilitang ginagamit, at ang kasaysayan ng Amerika ay itinuturo sa halip ng kasaysayan ng Pilipinas.',questions:['Paano mo nararamdaman ang sitwasyon — proud ka bang makatulong sa edukasyon, o may pag-aalala ka tungkol sa pagkawala ng kultura?','Ano ang mga bago at positibong bagay na natututo ang iyong mga estudyante? Ano naman ang nawawala?','Bilang guro, paano mo mapapanatili ang pagmamahal ng mga kabataan sa kulturang Pilipino habang natututo sila ng mga bagong kaalaman?'],interactionType:'reflection'}
+  ],
+  Q3:[
+    {id:1,type:'Tuklasin',xp:100,title:'Ang Rebolusyong Industriyal: Pagsisimula ng Modernong Daigdig',lesson:'Rebolusyong Industriyal at Epekto Nito',scenario:'Ang Rebolusyong Industriyal (1760–1840) ay nagsimula sa Britanya at nagbago ng paraan ng pamumuhay at trabaho ng mga tao sa buong mundo. Mula sa paggawa sa kamay, lumipat ang industriya sa paggamit ng makina.',questions:['Ano ang mga pangunahing pagbabago na dinulot ng Rebolusyong Industriyal sa paraan ng pamumuhay ng mga tao?','Paano nakaapekto ang Rebolusyong Industriyal sa mga manggagawa, lalo na ang mga kababaihan at bata?','Nakita mo ba ang mga epekto ng Rebolusyong Industriyal sa Pilipinas ngayon? Magbigay ng mga halimbawa.'],interactionType:'reflection'},
+    {id:2,type:'Suriin',xp:100,title:'I-Sort: Dahilan at Epekto ng Rebolusyong Industriyal',lesson:'Rebolusyong Industriyal',scenario:'Suriin ang bawat pangyayari at tukuyin kung ito ay dahilan o epekto ng Rebolusyong Industriyal.',questions:null,interactionType:'sort',sortData:{items:['Pagkakaroon ng coal at iron ore sa Britanya','Paglaki ng mga lungsod (urbanisasyon)','Paglitaw ng middle class','Masaganang likas na yaman ng kolonya','Polusyon at maruming ilog','Bagong teknolohiya ng steam engine'],col1:'Dahilan ng Rebolusyon',col2:'Epekto ng Rebolusyon',answers:{'Pagkakaroon ng coal at iron ore sa Britanya':'Dahilan ng Rebolusyon','Paglaki ng mga lungsod (urbanisasyon)':'Epekto ng Rebolusyon','Paglitaw ng middle class':'Epekto ng Rebolusyon','Masaganang likas na yaman ng kolonya':'Dahilan ng Rebolusyon','Polusyon at maruming ilog':'Epekto ng Rebolusyon','Bagong teknolohiya ng steam engine':'Dahilan ng Rebolusyon'}}},
+    {id:3,type:'Gawin',xp:100,title:'Pahayagan: Ulat mula sa Rebolusyong Pranses',lesson:'Rebolusyong Pranses at Epekto Nito',scenario:'1789, Paris. Nagalit ang mga Pranses sa kanilang hari at naglunsad ng rebolusyon. Ikaw ay isang reporter para sa isang pahayagan.',questions:['Isulat ang iyong ulat tungkol sa mga kaganapan ng Rebolusyong Pranses — bakit nangyari ito at ano ang mga pangunahing pangyayari?','Sino ang mga pangunahing tauhan at ano ang kanilang papel sa rebolusyon?','Paano nakaapekto ang Rebolusyong Pranses sa ibang bansa sa Europa at sa buong mundo?'],interactionType:'reflection'},
+    {id:4,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Rebolusyon sa Daigdig',lesson:'Mga Rebolusyon at Pagbabago sa Daigdig',scenario:'Ilagay ang mga sumusunod na mahahalagang rebolusyon sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Rebolusyong Pranses (1789)','Rebolusyong Industriyal (1760)','Rebolusyong Amerikano (1776)','Rebolusyong Ruso (1917)'],correct:['Rebolusyong Industriyal (1760)','Rebolusyong Amerikano (1776)','Rebolusyong Pranses (1789)','Rebolusyong Ruso (1917)']}},
+    {id:5,type:'Ipagtanggol',xp:100,title:'Imperyalismo: Tumutulong ba sa Pag-unlad ng mga Bansa?',lesson:'Imperyalismo at Epekto sa Daigdig',scenario:'Ang imperyalismo ay ang patakaran ng isang makapangyarihang bansa na kontrolin o impluwensiyahan ang iba pang bansa. Sinasabi ng ilang mga iskolar na nagdala ito ng "sibilisasyon" at pag-unlad. Ngunit ayon sa iba, ito ay pagsasamantala at pagkawasak ng kultura.',questions:['Sa iyong palagay, ang imperyalismo ba ay isang paraan ng pag-unlad o isang anyo ng pang-aapi? Ipaliwanag.','Paano nakaapekto ang imperyalismo sa mga bansang katulad ng Pilipinas, India, at Africa?','May imperyalismo pa rin ba sa modernong panahon? Magbigay ng mga halimbawa.'],interactionType:'reflection'},
+    {id:6,type:'Suriin',xp:100,title:'I-Connect: Mga Rebolusyon at Kanilang Mga Bayani',lesson:'Mga Bayani ng mga Dakilang Rebolusyon',scenario:'Itugma ang bawat rebolusyon sa pangunahing pinuno nito.',questions:null,interactionType:'connect',connectData:{left:['Rebolusyong Amerikano','Rebolusyong Pranses','Rebolusyong Ruso','Rebolusyon ng Pilipinas'],right:['George Washington','Maximilien Robespierre','Vladimir Lenin','Emilio Aguinaldo'],pairs:{0:0,1:1,2:2,3:3}}},
+    {id:7,type:'Gawin',xp:100,title:'Talumpati ng Isang Lider ng Kilusang Paggawa',lesson:'Kilusang Paggawa at Karapatan ng mga Manggagawa',scenario:'1900, Manchester. Ikaw ay isang lider ng kilusang paggawa (labor union). Ang mga manggagawa ay nagtatrabaho ng 14 na oras sa isang araw, 6 na araw sa isang linggo, nang walang sapat na sahod o proteksyon.',questions:['Isulat ang iyong talumpati sa mga manggagawa. Ano ang iyong ituturo at hihilingin?','Ano ang mga pangunahing karapatan ng manggagawa na itinataguyod mo at bakit mahalaga ang mga ito?','Paano makikita ang mga simulaing ito ng kilusang paggawa sa mga batas sa trabaho ngayon sa Pilipinas?'],interactionType:'reflection'},
+    {id:8,type:'Tuklasin',xp:100,title:'Nasyonalismo: Ang Puwersa na Nagbago ng Mapa ng Mundo',lesson:'Nasyonalismo at Pagbabago ng Mundo',scenario:'Ang nasyonalismo — ang pagmamahal at katapatan sa sariling bansa at kultura — ay naging isa sa pinakamalakas na pwersa sa kasaysayan ng ika-19 at ika-20 siglo. Nagbunga ito ng pagtatayo ng bagong mga bansa, rebolusyon, at pati na rin digmaan.',questions:['Paano naging sanhi ng mga digmaan ang matinding nasyonalismo sa kasaysayan ng mundo?','Ano ang pagkakaiba ng "malusog" na nasyonalismo (pagmamahal sa sariling bansa) at "mapanganib" na nasyonalismo (paghamak sa ibang bansa)?','Paano mo ipinakikita ang iyong pagmamahal sa Pilipinas bilang isang kabataang Pilipino?'],interactionType:'reflection'},
+    {id:9,type:'Maging Sila',xp:100,title:'Ikaw ay si Marie Curie: Siyentipiko sa Gitna ng Pag-aalinlangan',lesson:'Pag-unlad ng Agham at Teknolohiya',scenario:'1903. Ikaw ay si Marie Curie, ang unang babae na manalo ng Nobel Prize. Sa kabila ng iyong mga kahanga-hangang natuklasan tungkol sa radioactivity, maraming lalaking siyentipiko ang hindi nagbibigay ng respeto sa iyo dahil babae ka.',questions:['Paano mo haharapin ang diskriminasyon at pag-aalinlangan ng iyong mga katrabaho? Ano ang iyong magagawa?','Ano ang nag-uudyok sa iyo na magpatuloy sa iyong pananaliksik kahit may mga hadlang?','Ano ang nais mong mensahe para sa mga batang babae ngayon na nag-aaral ng agham at matematika?'],interactionType:'reflection'},
+    {id:10,type:'Suriin',xp:100,title:'I-Sort: Mga Ideolohiya ng Ika-19 at Ika-20 Siglo',lesson:'Mga Ideolohiyang Panlipunan at Pulitikal',scenario:'Tukuyin kung ang bawat pahayag ay nagmumula sa ideolohiyang kapitalismo, sosyalismo, o komunismo.',questions:null,interactionType:'sort',sortData:{items:['Ang bawat tao ay may karapatang magmay-ari ng negosyo','Ang estado ang nagmamay-ari ng lahat ng paraan ng produksyon','Ang mga manggagawa ay dapat makatanggap ng katamtamang bahagi ng kita','Ang libreng pamilihan ang pinakamabuting paraan ng pamamahagi ng kayamanan','Walang pribadong ari-arian — lahat ay pag-aari ng lahat','Dapat regulahin ng gobyerno ang malalaking negosyo para protektahan ang manggagawa'],col1:'Kapitalismo',col2:'Komunismo/Sosyalismo',answers:{'Ang bawat tao ay may karapatang magmay-ari ng negosyo':'Kapitalismo','Ang estado ang nagmamay-ari ng lahat ng paraan ng produksyon':'Komunismo/Sosyalismo','Ang mga manggagawa ay dapat makatanggap ng katamtamang bahagi ng kita':'Komunismo/Sosyalismo','Ang libreng pamilihan ang pinakamabuting paraan ng pamamahagi ng kayamanan':'Kapitalismo','Walang pribadong ari-arian — lahat ay pag-aari ng lahat':'Komunismo/Sosyalismo','Dapat regulahin ng gobyerno ang malalaking negosyo para protektahan ang manggagawa':'Komunismo/Sosyalismo'}}},
+    {id:11,type:'Timeline',xp:100,title:'Pagkakasunod ng Mga Makabagong Kaganapan',lesson:'Mga Pandaigdigang Kaganapan sa Ika-19 at Ika-20 Siglo',scenario:'Ilagay ang mga sumusunod na kaganapan sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Rebolusyong Pranses (1789)','Pagtatapos ng Digmaang Pilipino-Amerikano (1902)','Rebolusyong Ruso (1917)','Unang Digmaang Pandaigdig (1914)'],correct:['Rebolusyong Pranses (1789)','Pagtatapos ng Digmaang Pilipino-Amerikano (1902)','Unang Digmaang Pandaigdig (1914)','Rebolusyong Ruso (1917)']}},
+    {id:12,type:'Maging Sila',xp:100,title:'Ikaw ay Isang Manggagawa sa Panahon ng Rebolusyong Industriyal',lesson:'Kaganapan at Epekto ng Rebolusyong Industriyal',scenario:'1850, Manchester, Inglatera. Ikaw ay isang dating magsasaka na ngayon ay nagtatrabaho sa isang malaking pabrika ng tela. 14 na oras ka nagtatrabaho araw-araw, 6 na araw sa isang linggo.',questions:['Ilarawan ang iyong buhay bilang manggagawa sa pabrika — trabaho, pamilya, kalusugan, at pag-asa.','Sasali ka ba sa kilusang paggawa (labor movement) na nagtataguyod ng mas maikling oras ng trabaho at mas mataas na sahod?','Ano ang pagkakatulad ng sitwasyon ng mga manggagawa sa ika-19 siglo at ng mga manggagawa sa Pilipinas ngayon?'],interactionType:'reflection'}
+  ],
+  Q4:[
+    {id:1,type:'Tuklasin',xp:100,title:'Ang Unang Digmaang Pandaigdig: Paano Nagsimula ang Lahat?',lesson:'Mga Dahilang nagbigay-daan sa Unang Digmaang Pandaigdig',scenario:'Ang Unang Digmaang Pandaigdig (1914–1918) ay nagsimula sa pagpatay kay Archduke Franz Ferdinand ng Austria-Hungary sa Sarajevo, Bosnia. Ngunit ang tunay na mga dahilan ay mas malalim — nasyonalismo, imperyalismo, militarismo, at mga alyansa.',questions:['Ipaliwanag ang konsepto ng MAIN (Militarism, Alliances, Imperialism, Nationalism) bilang mga dahilan ng WWI.','Paano isang pagpatay sa isang tao ay nagbunsod ng isang digmaang kinasangkutan ng halos lahat ng malalaking bansa sa mundo?','Maaari bang maiwasan ang Unang Digmaang Pandaigdig? Kung oo, paano?'],interactionType:'reflection'},
+    {id:2,type:'Suriin',xp:100,title:'I-Sort: Dahilan at Epekto ng Digmaang Pandaigdig',lesson:'Epekto ng Unang Digmaang Pandaigdig',scenario:'Suriin ang mga sumusunod na pangyayari at tukuyin kung ito ay dahilan o epekto ng Unang Digmaang Pandaigdig.',questions:null,interactionType:'sort',sortData:{items:['Matinding nasyonalismo sa Europa','Pagbuo ng League of Nations','Sobrang militarismo ng mga bansa','Pagbagsak ng Imperyong Austro-Hungaryano','Lumpuhang sistema ng mga alyansa','Rebolusyong Ruso at pag-usbong ng komunismo'],col1:'Dahilan ng WWI',col2:'Epekto ng WWI',answers:{'Matinding nasyonalismo sa Europa':'Dahilan ng WWI','Pagbuo ng League of Nations':'Epekto ng WWI','Sobrang militarismo ng mga bansa':'Dahilan ng WWI','Pagbagsak ng Imperyong Austro-Hungaryano':'Epekto ng WWI','Lumpuhang sistema ng mga alyansa':'Dahilan ng WWI','Rebolusyong Ruso at pag-usbong ng komunismo':'Epekto ng WWI'}}},
+    {id:3,type:'Gawin',xp:100,title:'Sulatan: Liham ng Isang Sundalo sa Unang Digmaang Pandaigdig',lesson:'Mahahalagang Pangyayari sa Unang Digmaang Pandaigdig',scenario:'Hulyo 1917. Ikaw ay isang 19-taong-gulang na sundalo sa mga trinsera ng Pransya. Malamig, maputik, at mapanganib ang paligid.',questions:['Isulat ang liham na ito — ano ang iyong nakikita, nararamdaman, at iniisip sa digmaan?','Ano ang dahilan kung bakit ka nandito? Naniniwala ka ba sa digmaang ito?','Ano ang iyong pangarap pagkatapos ng digmaan — kung makakabalik ka sa iyong bayan?'],interactionType:'reflection'},
+    {id:4,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Digmaang Pandaigdig',lesson:'Unang at Ikalawang Digmaang Pandaigdig',scenario:'Ilagay ang mga sumusunod na mahahalagang pangyayari sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Pagbagsak ng Berlin Wall (1989)','Simula ng Unang Digmaang Pandaigdig (1914)','Pagsalakay ng Japan sa Pearl Harbor (1941)','Pagtatapos ng Ikalawang Digmaang Pandaigdig (1945)'],correct:['Simula ng Unang Digmaang Pandaigdig (1914)','Pagsalakay ng Japan sa Pearl Harbor (1941)','Pagtatapos ng Ikalawang Digmaang Pandaigdig (1945)','Pagbagsak ng Berlin Wall (1989)']}},
+    {id:5,type:'Ipagtanggol',xp:100,title:'Dapat ba Gumamit ng Atomic Bomb ang Amerika laban sa Japan?',lesson:'Mahahalagang Pangyayari sa Ikalawang Digmaang Pandaigdig',scenario:'Agosto 6 at 9, 1945. Ibinagsak ng Amerika ang mga atomic bomb sa Hiroshima at Nagasaki, Japan. Higit 200,000 tao ang namatay, karamihan ay sibilyan.',questions:['Ano ang inyong posisyon — tama ba ang desisyon ng Amerika na gumamit ng atomic bomb?','Mula sa pananaw ng etika at makataong batas ng digmaan, paano mo susuriin ang pagkilos na ito?','Ano ang epekto ng paggamit ng atomic bomb sa pandaigdigang pulitika at takot sa nuclear war hanggang ngayon?'],interactionType:'reflection'},
+    {id:6,type:'Maging Sila',xp:100,title:'Ikaw ay Isang Pilipino sa Panahon ng Ikalawang Digmaang Pandaigdig',lesson:'Pilipinas sa Ikalawang Digmaang Pandaigdig',scenario:'Disyembre 1941. Sinalakay ng Japan ang Pilipinas. Ikaw ay isang 20-taong-gulang na Pilipino sa Maynila.',questions:['Anong pagpipilian ang iyong gagawin at bakit? Isulat ito nang malalim — isinasaalang-alang ang iyong pamilya, prinsipyo, at kaligtasan.','Paano mo titingnan ang mga Pilipinong nakiisa sa Japan? Traydor sila o may mabuting dahilan?','Ano ang matutukan mo sa kasaysayan ng pananakop ng Japan sa Pilipinas na hindi mo nalalaman noon?'],interactionType:'reflection'},
+    {id:7,type:'Tuklasin',xp:100,title:'Ang Cold War: Digmaan nang Walang Tunay na Labanan',lesson:'Mga Ideolohiya at Cold War',scenario:'Pagkatapos ng Ikalawang Digmaang Pandaigdig, nag-umpisa ang bagong uri ng konliktong tinatawag na Cold War sa pagitan ng Amerika (kapitalismo at demokrasya) at ng Soviet Union (komunismo).',questions:['Bakit tinawag na "Cold War" ang salungatan sa pagitan ng Amerika at Soviet Union?','Paano nakaapekto ang Cold War sa mga bansang katulad ng Pilipinas na nasa gitna ng dalawang kapangyarihan?','Tinatapos na ba ang Cold War ngayon, o may bagong uri nito na nangyayari sa kasalukuyan?'],interactionType:'reflection'},
+    {id:8,type:'Suriin',xp:100,title:'I-Connect: Mga Pandaigdigang Organisasyon at ang Kanilang Layunin',lesson:'Mga Pandaigdigang Organisasyon at Pangkat',scenario:'Itugma ang bawat pandaigdigang organisasyon sa pangunahing layunin nito.',questions:null,interactionType:'connect',connectData:{left:['United Nations (UN)','World Health Organization (WHO)','International Monetary Fund (IMF)','ASEAN'],right:['Kapayapaan at seguridad ng mundo','Kalusugan at pandaigdigang sakit','Pandaigdigang ekonomiya at pautang','Kooperasyon ng mga bansa sa Timog-Silangang Asya'],pairs:{0:0,1:1,2:2,3:3}}},
+    {id:9,type:'Gawin',xp:100,title:'Ikaw ang Kinatawan ng Pilipinas sa United Nations',lesson:'Pagsisikap ng mga Bansa na Makamit ang Kapayapaan',scenario:'Ikaw ay nahalal bilang kinatawan ng Pilipinas sa United Nations General Assembly. May talumpati kang bibigyan tungkol sa isang pandaigdigang suliranin.',questions:['Piliin ang isang pandaigdigang suliranin at isulat ang pangunahing punto ng iyong talumpati sa UN.','Paano mo ipapaliwanag sa mundo kung paano nakakaapekto ang problemang ito sa Pilipinas nang partikular?','Ano ang iyong konkretong panukala na itatanggap ng lahat ng miyembro ng UN?'],interactionType:'reflection'},
+    {id:10,type:'Ipagtanggol',xp:100,title:'Ang Globalisasyon: Tumutulong ba Ito sa Pilipinas o Nagsasamantala?',lesson:'Kontemporanyong Daigdig at mga Hamon',scenario:'Ang globalisasyon ay ang proseso ng pagiging mas magkakaugnay ng mga bansa sa pamamagitan ng kalakalan, teknolohiya, at kultura.',questions:['Sa palagay mo, ang globalisasyon ba ay mas nakakatulong o mas nakakapinsala sa mga bansang katulad ng Pilipinas?','Magbigay ng tatlong tiyak na halimbawa kung paano nakakaapekto ang globalisasyon sa pang-araw-araw na buhay ng mga Pilipino.','Ano ang maaaring gawin ng pamahalaan at ng mga kabataan upang mapakinabangan ang globalisasyon nang hindi nawawala ang sariling kultura?'],interactionType:'reflection'},
+    {id:11,type:'Timeline',xp:100,title:'Pagkakasunod ng mga Kaganapan sa Kontemporanyong Panahon',lesson:'Kontemporanyong Daigdig',scenario:'Ilagay ang mga sumusunod na mahahalagang kaganapan sa kasaysayan ng kontemporaryong mundo sa tamang pagkakasunod.',interactionType:'timeline',timelineData:{items:['Pagtatatag ng United Nations (1945)','Pagbagsak ng Soviet Union (1991)','September 11 terrorist attacks (2001)','COVID-19 pandemic (2020)'],correct:['Pagtatatag ng United Nations (1945)','Pagbagsak ng Soviet Union (1991)','September 11 terrorist attacks (2001)','COVID-19 pandemic (2020)']}},
+    {id:12,type:'Maging Sila',xp:100,title:'Ikaw ang Punong-Ministro ng Mundo: Paano Maabot ang Kapayapaan?',lesson:'Pandaigdigang Kapayapaan, Pagkakaisa, at Kaunlaran',scenario:'Isipin na ikaw ang pinuno ng isang pandaigdigang organisasyon na may kapangyarihang tumulong sa mga pinaka-mapanganib na sitwasyon sa mundo.',questions:['Sa tatlong pangunahing problema ng mundo — digmaan, kahirapan, at pagbabago ng klima — saan mo uunahin ang iyong mga mapagkukunan at bakit?','Ano ang iyong konkretong plano para matugunan ang problemang pinili mo? Magbigay ng tatlong hakbang.','Bilang isang kabataang Pilipino, ano ang iyong nais na kontribusyon sa pagkamit ng pandaigdigang kapayapaan at kaunlaran?'],interactionType:'reflection'}
+  ]
+};
+
+const TYPE_ICONS={Tuklasin:'🔍',Suriin:'📊',Gawin:'✏️',Ipagtanggol:'⚔️','Maging Sila':'🎭',Timeline:'📅'};
+const TYPE_COLORS={Tuklasin:'#74B9FF',Suriin:'#A29BFE',Gawin:'#55EFC4',Ipagtanggol:'#FF7675','Maging Sila':'#FD79A8',Timeline:'#FDCB6E'};
+
+// ══════════════════════════════ LOGIN ══════════════════════════════
+function setRole(role,btn){
+  S.role=role;
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('student-login').style.display=role==='student'?'block':'none';
+  document.getElementById('teacher-login').style.display=role==='teacher'?'block':'none';
+}
+function toggleCodeInput(cb){
+  const inp=document.getElementById('class-code-input');
+  inp.disabled=cb.checked; if(cb.checked) inp.value='';
+}
+function loginStudent(){
+  const name=document.getElementById('student-name').value.trim();
+  const rawCode=document.getElementById('class-code-input').value.trim().toUpperCase();
+  const noCode=document.getElementById('no-code-check').checked;
+  // Name is required
+  if(!name){showToast('⚠️ Pakiusap, ilagay ang iyong pangalan!');document.getElementById('student-name').focus();return;}
+  // If no checkbox checked and no code entered, block entry
+  if(!noCode&&!rawCode){showToast('❌ Ilagay ang class code o lagyan ng tsek ang "Pumasok nang walang class code".');return;}
+  const code=noCode?'':rawCode;
+  if(code){const store=getStore();if(!store.rooms[code]){showToast('❌ Hindi nahanap ang class code. Subukang muli.');return;}}
+  const studentId='student_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  S.studentId=studentId;
+  const store=getStore();
+  store.students[studentId]={id:studentId,name,classCode:code,xp:50,missionsCompleted:[],journalEntries:[],dailyDone:false,joinedAt:new Date().toISOString()};
+  if(code&&store.rooms[code]){if(!store.rooms[code].students)store.rooms[code].students=[];if(!store.rooms[code].students.includes(studentId))store.rooms[code].students.push(studentId);}
+  saveStore(store);
+  document.getElementById('profile-name-display').textContent=name;
+  document.getElementById('profile-initial').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('profile-class-display').textContent='Grade 8 · '+(code||'Walang Code');
+  document.getElementById('xp-display').textContent='50 XP';
+  playSound('unlock');
+  showScreen('screen-student');
+  renderMissionGrid('Q1');
+  renderMap();
+}
+function loginTeacher(){
+  const name=document.getElementById('teacher-name-input').value.trim();
+  if(!name){showToast('⚠️ Pakiusap, ilagay ang iyong pangalan!');document.getElementById('teacher-name-input').focus();return;}
+  const code='BQ-'+Math.floor(1000+Math.random()*9000);
+  const store=getStore();
+  const teacherId='teacher_'+Date.now();
+  store.rooms[code]={teacherId,teacherName:name,code,students:[],createdAt:new Date().toISOString()};
+  saveStore(store);
+  S.teacherCode=code;
+  document.getElementById('teacher-name-display').textContent=name;
+  document.getElementById('teacher-code-display').textContent=code;
+  showScreen('screen-teacher');
+  renderTeacherDashboard();
+}
+
+// ══════════════════════════════ TEACHER ══════════════════════════════
+function renderTeacherDashboard(){
+  const store=getStore();const room=store.rooms[S.teacherCode];if(!room)return;
+  const studentIds=room.students||[];const students=studentIds.map(id=>store.students[id]).filter(Boolean);
+  const totalMissions=students.reduce((sum,s)=>sum+(s.missionsCompleted||[]).length,0);
+  const avgProgress=students.length>0?Math.round(students.reduce((sum,s)=>sum+Math.min(100,((s.missionsCompleted||[]).length/48)*100),0)/students.length):0;
+  document.getElementById('stat-students').textContent=students.length;
+  document.getElementById('stat-missions').textContent=totalMissions;
+  document.getElementById('stat-active').textContent=students.length;
+  document.getElementById('stat-avg').textContent=avgProgress+'%';
+  const list=document.getElementById('student-list-teacher');
+  if(students.length===0){list.innerHTML='<div class="no-students">Wala pang estudyante na nag-join.<br>Ibahagi ang class code sa itaas.</div>';return;}
+  list.innerHTML=students.map(s=>{
+    const progress=Math.min(100,Math.round(((s.missionsCompleted||[]).length/48)*100));
+    return`<div class="student-row" onclick="viewStudentJournal('${s.id}')">
+      <div class="student-avatar">${s.name.charAt(0).toUpperCase()}</div>
+      <div class="student-info">
+        <div class="student-name">${s.name}</div>
+        <div class="student-meta">${s.xp||50} XP · ${(s.missionsCompleted||[]).length} missions</div>
+      </div>
+      <div><div class="progress-mini"><div class="progress-mini-fill" style="width:${progress}%"></div></div>
+      <div style="font-size:11px;color:#5D9EC4;text-align:right;margin-top:4px;font-weight:700;">${progress}%</div></div>
+    </div>`;
+  }).join('');
+}
+function viewStudentJournal(studentId){
+  const store=getStore();const student=store.students[studentId];if(!student)return;
+  document.getElementById('journal-student-name').textContent='📖 Journal ni '+student.name;
+  const entries=student.journalEntries||[];
+  const container=document.getElementById('teacher-journal-entries');
+  if(entries.length===0){container.innerHTML='<div class="empty-state"><div class="big">📖</div>Wala pang journal entries.</div>';}
+  else{container.innerHTML=entries.map(e=>`<div class="journal-entry">
+    <div class="journal-entry-title">${e.missionTitle}</div>
+    ${(e.answers||[]).filter(a=>a.trim()).map((a,i)=>`<div class="journal-entry-text" style="margin-bottom:8px;"><strong style="color:var(--gold-dark);">Tanong ${i+1}:</strong> ${a}</div>`).join('')}
+    <div class="journal-entry-meta">✅ Nakumpleto · ${e.quarter} Mission ${e.id} · +${e.xp} XP</div>
+  </div>`).join('');}
+  document.getElementById('teacher-view-home').style.display='none';
+  document.getElementById('teacher-view-journal').style.display='flex';
+}
+function closeStudentJournal(){renderTeacherDashboard();document.getElementById('teacher-view-home').style.display='flex';document.getElementById('teacher-view-journal').style.display='none';}
+setInterval(()=>{if(S.teacherCode&&document.getElementById('screen-teacher').classList.contains('active')&&document.getElementById('teacher-view-journal').style.display==='none')renderTeacherDashboard();},5000);
+
+// ══════════════════════════════ NAVIGATION ══════════════════════════════
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});const el=document.getElementById(id);el.classList.add('active');}
+function logout(){S={role:'student',studentId:null,teacherCode:null,currentMission:null,currentQuarter:'Q1'};showScreen('screen-login');}
+function goBack(){showScreen('screen-student');}
+function switchTab(tab){
+  ['home','map','journal','profile'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('nav-'+t).classList.toggle('active',t===tab);
+  });
+  S.currentTab=tab;
+  if(tab==='journal')renderJournal();
+  if(tab==='profile')updateProfile();
+  if(tab==='map')renderMap();
+}
+
+// ══════════════════════════════ MISSION GRID ══════════════════════════════
+function getStudentData(){if(!S.studentId)return{xp:50,missionsCompleted:[],journalEntries:[],dailyDone:false};const store=getStore();return store.students[S.studentId]||{xp:50,missionsCompleted:[],journalEntries:[],dailyDone:false};}
+function selectQuarter(q,el){
+  S.currentQuarter=q;
+  document.querySelectorAll('.quarter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('mission-quarter-label').textContent=TYPE_ICONS[q]||'🏅'+' '+q+' — Mga Mission';
+  renderMissionGrid(q);
+}
+function renderMissionGrid(q){
+  const missions=MISSIONS[q];const student=getStudentData();
+  const completed=student.missionsCompleted.filter(m=>m.quarter===q).map(m=>m.id);
+  const maxUnlocked=completed.length>0?Math.max(...completed)+1:1;
+  document.getElementById('mission-grid').innerHTML=missions.map(m=>{
+    const isDone=completed.includes(m.id);
+    const isOpen=m.id===maxUnlocked;
+    const isLocked=!isDone&&!isOpen;
+    const cls=isDone?'completed':isOpen?'available':'locked';
+    const icon=TYPE_ICONS[m.type]||'📚';
+    return`<div class="mission-tile ${cls}" ${isLocked?'':` onclick="openMission(${m.id},'${q}');playSound('click')" `} title="${m.title}">
+      ${isLocked
+        ?`<span style="font-size:24px;">🔒</span><div class="mission-type-tag">#${m.id}</div>`
+        :`<div class="mission-icon">${isDone?'✅':icon}</div>
+           <div class="mission-num">${isDone?'':m.id}</div>
+           <div class="mission-type-tag" style="color:${isDone?'#6ECB90':TYPE_COLORS[m.type]||'var(--gold)'}">${m.type}</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════ MAP ══════════════════════════════
+function renderMap(){
+  const student=getStudentData();const list=document.getElementById('map-list');let html='';
+  ['Q1','Q2','Q3','Q4'].forEach(q=>{
+    const completed=student.missionsCompleted.filter(m=>m.quarter===q).map(m=>m.id);
+    const maxUnlocked=completed.length>0?Math.max(...completed)+1:1;
+    html+=`<div style="font-family:'Fredoka One',cursive;font-size:17px;color:var(--gold);margin:18px 0 10px;display:flex;align-items:center;gap:10px;">${q}<span style="flex:1;height:2px;background:rgba(255,184,0,0.2);display:block;border-radius:2px;"></span></div>`;
+    MISSIONS[q].forEach(m=>{
+      const isDone=completed.includes(m.id);const isOpen=m.id===maxUnlocked;const isLocked=!isDone&&!isOpen;
+      const status=isDone?'done':isOpen?'open':'lock';const statusTxt=isDone?'✅ Tapos':isOpen?'🟡 Bukas':'🔒';
+      html+=`<div class="map-item" onclick="${isLocked?'':` openMission(${m.id},'${q}');playSound('click')`}" style="${isLocked?'opacity:0.45;cursor:not-allowed;':''}">
+        <div class="map-item-num">${TYPE_ICONS[m.type]||m.id}</div>
+        <div class="map-item-info">
+          <div class="map-item-title">${m.title}</div>
+          <div class="map-item-meta">${q} · ${m.type} · +${m.xp} XP</div>
+        </div>
+        <div class="map-item-status ${status}">${statusTxt}</div>
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+
+// ══════════════════════════════ OPEN MISSION ══════════════════════════════
+function openMission(id,q){
+  const m=MISSIONS[q].find(x=>x.id===id);if(!m)return;
+  S.currentMission={...m,quarter:q};
+  document.getElementById('mission-tag').textContent=`${TYPE_ICONS[m.type]||''} ${m.type} · ${q} Mission ${m.id}`;
+  document.getElementById('mission-tag').style.background=`linear-gradient(135deg,${TYPE_COLORS[m.type]||'var(--gold)'}33,${TYPE_COLORS[m.type]||'var(--gold)'}11)`;
+  document.getElementById('mission-tag').style.borderColor=(TYPE_COLORS[m.type]||'var(--gold)')+'88';
+  document.getElementById('mission-tag').style.color=TYPE_COLORS[m.type]||'var(--gold)';
+  document.getElementById('mission-title-big').textContent=m.title;
+  document.getElementById('mission-content-area').innerHTML=buildMissionHTML(m);
+  initInteractions(m);
+  showScreen('screen-mission');
+}
+
+function buildMissionHTML(m){
+  let h=`<div class="card" style="margin-bottom:16px;">
+    <div style="font-size:12px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📚 ${m.lesson||''}</div>
+    <div class="question-label">📜 Sitwasyon</div>
+    <div class="scenario-box">${m.scenario}</div>
+    <span class="pill">⚡ +${m.xp} XP kapag natapos</span>
+  </div>`;
+
+  if(m.interactionType==='reflection'){
+    h+=`<div class="card"><div class="question-label">✍️ Iyong Mga Sagot</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:14px;font-weight:700;background:rgba(255,71,87,0.1);border:2px solid rgba(255,71,87,0.3);border-radius:10px;padding:10px 14px;">
+      ⚠️ Kailangan mong sagutin ang <strong>lahat ng tanong</strong> na may minimum na <strong>60 salita</strong> bawat isa bago ka makasulong!
+    </div>`;
+    (m.questions||[]).forEach((q,i)=>{
+      h+=`<div style="margin-bottom:18px;">
+        <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;">
+          <span style="background:var(--gold);color:#1A0A00;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">${i+1}</span>
+          <span>${q}</span>
+        </div>
+        <textarea class="journal-textarea" id="ans-${i}" placeholder="Isulat ang iyong sagot dito… (minimum 60 salita)" oninput="checkAnswerFilled(${i})" rows="5"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:-10px;margin-bottom:6px;">
+          <div id="ans-check-${i}" style="font-size:13px;color:var(--green);display:none;font-weight:700;">✅ Sagot na ito!</div>
+          <div id="word-count-${i}" style="font-size:12px;color:var(--text-dim);font-weight:800;margin-left:auto;">0/60 salita</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  if(m.interactionType==='sort'){
+    const d=m.sortData;
+    h+=`<div class="card">
+      <div class="question-label">🃏 I-Sort ang mga Card</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;font-weight:700;">I-drag ang bawat card sa tamang kolumna. Kailangang suriin ang iyong sagot bago mag-submit!</div>
+      <div class="sort-bank" id="sort-bank">
+        ${d.items.map(item=>`<div class="sort-card-item" draggable="true" data-item="${item}" ondragstart="dragStart(event)">${item}</div>`).join('')}
+      </div>
+      <div class="sort-columns">
+        <div><div class="sort-col-label">🔵 ${d.col1}</div><div class="sort-col" id="col-0" ondragover="dragOver(event)" ondrop="dropCard(event,'${d.col1}')"></div></div>
+        <div><div class="sort-col-label">🔴 ${d.col2}</div><div class="sort-col" id="col-1" ondragover="dragOver(event)" ondrop="dropCard(event,'${d.col2}')"></div></div>
+      </div>
+      <div class="check-btn-row">
+        <button class="btn btn-sm btn-outline" onclick="checkSort();playSound('tap')">🔍 Suriin ang Sagot</button>
+        <div id="sort-status" class="check-status"></div>
+      </div>
+      <div id="sort-result" style="margin-top:8px;font-size:14px;font-weight:800;"></div>
+    </div>`;
+  }
+
+  if(m.interactionType==='timeline'){
+    const d=m.timelineData;
+    const shuffled=[...d.items].sort(()=>Math.random()-0.5);
+    h+=`<div class="card">
+      <div class="question-label">📅 I-Ayos ang Timeline</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;font-weight:700;">I-drag ang mga pangyayari sa tamang pagkakasunod. Kailangan nang tamang pagkakasunod para makasubmit!</div>
+      <div class="sort-bank" id="timeline-bank">
+        ${shuffled.map(item=>`<div class="sort-card-item" draggable="true" data-item="${item}" ondragstart="dragStart(event)" style="font-size:13px;">${item}</div>`).join('')}
+      </div>
+      <div class="timeline-slots" id="timeline-slots">
+        ${d.correct.map((_,i)=>`<div class="timeline-slot"><div class="timeline-num">${i+1}</div><div class="timeline-drop-zone" id="tslot-${i}" ondragover="dragOver(event)" ondrop="dropTimeline(event,${i})">i-drop dito…</div></div>`).join('')}
+      </div>
+      <div class="check-btn-row">
+        <button class="btn btn-sm btn-outline" onclick="checkTimeline();playSound('tap')">🔍 Suriin ang Sagot</button>
+        <div id="timeline-status" class="check-status"></div>
+      </div>
+      <div id="timeline-result" style="margin-top:8px;font-size:14px;font-weight:800;"></div>
+    </div>`;
+  }
+
+  if(m.interactionType==='connect'){
+    const d=m.connectData;
+    h+=`<div class="card">
+      <div class="question-label">🔗 I-Connect ang mga Pares</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;font-weight:700;">I-tap ang isang item sa kaliwa, pagkatapos ang tamang pares sa kanan. Kailangan ng tamang koneksyon bago mag-submit!</div>
+      <div class="connect-pairs">
+        <div class="connect-col">${d.left.map((item,i)=>`<div class="connect-item" id="left-${i}" onclick="selectLeft(${i});playSound('tap')">${item}</div>`).join('')}</div>
+        <div class="connect-col">${d.right.map((item,i)=>`<div class="connect-item" id="right-${i}" onclick="selectRight(${i});playSound('tap')">${item}</div>`).join('')}</div>
+      </div>
+      <div class="check-btn-row">
+        <button class="btn btn-sm btn-outline" onclick="checkConnect();playSound('tap')">🔍 Suriin ang Sagot</button>
+        <div id="connect-status" class="check-status"></div>
+      </div>
+      <div id="connect-result" style="margin-top:8px;font-size:14px;font-weight:800;"></div>
+    </div>`;
+  }
+
+  h+=`<div style="margin-top:12px;padding-bottom:20px;">
+    <button class="btn btn-gold btn-full" onclick="submitMission();playSound('click')" style="font-size:18px;padding:16px;">✅ I-Submit ang Mission</button>
+  </div>`;
+  return h;
+}
+
+// Answer fill tracking
+function checkAnswerFilled(i){
+  const val=document.getElementById('ans-'+i)?.value||'';
+  const wordCount=val.trim()===''?0:val.trim().split(/\s+/).length;
+  const check=document.getElementById('ans-check-'+i);
+  const counter=document.getElementById('word-count-'+i);
+  if(counter){
+    counter.textContent=wordCount+'/60 salita';
+    counter.style.color=wordCount>=60?'var(--green)':'var(--text-dim)';
+  }
+  if(check){check.style.display=wordCount>=60?'block':'none';}
+}
+
+// ══════════════════════════════ DRAG AND DROP ══════════════════════════════
+let dragItem=null;
+function dragStart(e){dragItem=e.target;e.dataTransfer.effectAllowed='move';}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function dropCard(e,colName){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!dragItem)return;
+  const clone=dragItem.cloneNode(true);
+  clone.ondragstart=ev=>{dragItem=ev.target;ev.dataTransfer.effectAllowed='move';};
+  e.currentTarget.appendChild(clone);dragItem.remove();dragItem=null;
+  playSound('tap');
+}
+function dropTimeline(e,idx){
+  e.preventDefault();const zone=document.getElementById('tslot-'+idx);
+  zone.classList.remove('drag-over');if(!dragItem)return;
+  const existing=zone.querySelector('.sort-card-item');
+  if(existing)document.getElementById('timeline-bank').appendChild(existing);
+  zone.innerHTML='';
+  const clone=dragItem.cloneNode(true);clone.style.cssText='margin:0;font-size:13px;';
+  clone.draggable=true;clone.ondragstart=ev=>{dragItem=ev.target;ev.dataTransfer.effectAllowed='move';};
+  zone.appendChild(clone);zone.classList.add('filled');
+  dragItem.remove();dragItem=null;playSound('tap');
+}
+
+// ══════════════════════════════ CHECK FUNCTIONS ══════════════════════════════
+let sortPassed=false,timelinePassed=false,connectPassed=false;
+
+function checkSort(){
+  const d=S.currentMission.sortData;let correct=0,total=Object.keys(d.answers).length;
+  ['col-0','col-1'].forEach((colId,ci)=>{
+    const colName=ci===0?d.col1:d.col2;
+    document.getElementById(colId).querySelectorAll('.sort-card-item').forEach(el=>{
+      const ok=d.answers[el.dataset.item]===colName;
+      el.style.borderColor=ok?'var(--green)':'var(--red)';
+      el.style.background=ok?'rgba(46,204,113,0.15)':'rgba(255,71,87,0.1)';
+      if(ok)correct++;
+    });
+  });
+  const r=document.getElementById('sort-result');const st=document.getElementById('sort-status');
+  sortPassed=correct===total;
+  if(sortPassed){r.style.color='var(--green)';r.textContent=`✅ Tama lahat! ${correct}/${total}`;st.className='check-status correct';st.textContent='Perpekto!';playSound('correct');}
+  else{r.style.color='var(--gold)';r.textContent=`${correct}/${total} tama — subukan muli!`;st.className='check-status partial';st.textContent=correct+'/'+total+' tama';playSound('wrong');}
+}
+function checkTimeline(){
+  const correct=S.currentMission.timelineData.correct;let score=0;
+  correct.forEach((c,i)=>{const zone=document.getElementById('tslot-'+i);const item=zone.querySelector('.sort-card-item');const ok=item&&item.dataset.item===c;zone.style.borderColor=ok?'var(--green)':'var(--red)';if(ok)score++;});
+  const r=document.getElementById('timeline-result');const st=document.getElementById('timeline-status');
+  timelinePassed=score===correct.length;
+  if(timelinePassed){r.style.color='var(--green)';r.textContent='✅ Perpekto! Tamang pagkakasunod!';st.className='check-status correct';st.textContent='Perpekto!';playSound('correct');}
+  else{r.style.color='var(--gold)';r.textContent=`${score}/${correct.length} tama — ayusin pa!`;st.className='check-status partial';st.textContent=score+'/'+correct.length+' tama';playSound('wrong');}
+}
+let selectedLeft=null,connectMatches={};
+function selectLeft(i){if(document.getElementById('left-'+i).classList.contains('matched'))return;document.querySelectorAll('[id^="left-"]').forEach(el=>el.classList.remove('selected'));document.getElementById('left-'+i).classList.add('selected');selectedLeft=i;}
+function selectRight(i){
+  if(selectedLeft===null){showToast('👆 Pumili muna sa kaliwa!');return;}
+  if(document.getElementById('right-'+i).classList.contains('matched'))return;
+  connectMatches[selectedLeft]=i;
+  document.getElementById('left-'+selectedLeft).classList.replace('selected','matched');
+  document.getElementById('right-'+i).classList.add('matched');
+  selectedLeft=null;
+}
+function checkConnect(){
+  const pairs=S.currentMission.connectData.pairs;let correct=0;
+  Object.entries(connectMatches).forEach(([l,r])=>{const ok=pairs[l]==r;document.getElementById('left-'+l).style.borderColor=ok?'var(--green)':'var(--red)';document.getElementById('right-'+r).style.borderColor=ok?'var(--green)':'var(--red)';if(ok)correct++;});
+  const r=document.getElementById('connect-result');const st=document.getElementById('connect-status');
+  connectPassed=correct===Object.keys(pairs).length;
+  if(connectPassed){r.style.color='var(--green)';r.textContent='✅ Tama lahat ang mga pares!';st.className='check-status correct';st.textContent='Lahat Tama!';playSound('correct');}
+  else{r.style.color='var(--gold)';r.textContent=`${correct}/${Object.keys(pairs).length} tama`;st.className='check-status partial';st.textContent=correct+'/'+Object.keys(pairs).length+' tama';playSound('wrong');}
+}
+function initInteractions(){selectedLeft=null;connectMatches={};dragItem=null;sortPassed=false;timelinePassed=false;connectPassed=false;}
+
+// ══════════════════════════════ SUBMIT MISSION ══════════════════════════════
+function submitMission(){
+  const m=S.currentMission;
+  if(!S.studentId){showToast('❌ Mag-login muna bilang estudyante.');return;}
+
+  if(m.interactionType==='reflection'){
+    const answers=(m.questions||[]).map((_,i)=>document.getElementById('ans-'+i)?.value||'');
+    // Require ALL questions to have at least 60 words
+    const allFilled=answers.every(a=>a.trim().split(/\s+/).length>=60);
+    if(!allFilled){
+      showToast('⚠️ Kailangan mong sagutin ang LAHAT ng tanong! (min. 60 salita bawat isa)');
+      // Flash empty textareas
+      (m.questions||[]).forEach((_,i)=>{const ta=document.getElementById('ans-'+i);if(ta&&ta.value.trim().split(/\s+/).length<60){ta.style.borderColor='var(--red)';ta.style.boxShadow='0 0 0 3px rgba(255,71,87,0.2)';setTimeout(()=>{ta.style.borderColor='';ta.style.boxShadow='';},2000);}});
+      return;
+    }
+    saveAndComplete(m,answers);
+  } else if(m.interactionType==='sort'){
+    if(!sortPassed){showToast('⚠️ I-check muna ang iyong sagot! Kailangan tamang lahat bago mag-submit.');return;}
+    saveAndComplete(m,[]);
+  } else if(m.interactionType==='timeline'){
+    if(!timelinePassed){showToast('⚠️ I-check muna ang timeline! Kailangan tamang pagkakasunod bago mag-submit.');return;}
+    saveAndComplete(m,[]);
+  } else if(m.interactionType==='connect'){
+    const pairs=S.currentMission.connectData.pairs;
+    if(Object.keys(connectMatches).length<Object.keys(pairs).length){showToast('⚠️ I-connect ang lahat ng pares bago mag-submit!');return;}
+    if(!connectPassed){showToast('⚠️ Hindi pa tama ang lahat ng koneksyon! I-check muna.');return;}
+    saveAndComplete(m,[]);
+  }
+}
+
+function saveAndComplete(m,answers){
+  const store=getStore();const student=store.students[S.studentId];if(!student)return;
+  const alreadyDone=(student.missionsCompleted||[]).find(x=>x.id===m.id&&x.quarter===m.quarter);
+  if(!alreadyDone){
+    student.missionsCompleted=[...(student.missionsCompleted||[]),{id:m.id,quarter:m.quarter}];
+    student.xp=(student.xp||50)+m.xp;
+    if(answers.length>0){student.journalEntries=[...(student.journalEntries||[]),{missionTitle:`Mission ${m.id} — ${m.type}: ${m.title}`,answers,xp:m.xp,quarter:m.quarter,id:m.id}];}
+    store.students[S.studentId]=student;saveStore(store);
+    document.getElementById('xp-display').textContent=student.xp+' XP';
+  }
+  const msgs=['Mahusay na trabaho, Tagasaliksik! 🌟','Patuloy kang lumago! 🚀','Kahusayan mo ay kapuri-puri! 🏆','Isang hakbang na mas malapit sa pagiging Bayani! ⚔️'];
+  document.getElementById('success-xp-amount').textContent='+'+m.xp+' XP';
+  document.getElementById('success-msg').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  launchConfetti();
+  playSound('success');
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+function closeSuccess(){
+  document.getElementById('success-overlay').classList.remove('show');
+  renderMissionGrid(S.currentQuarter);renderMap();updateProfile();
+  showScreen('screen-student');switchTab('home');
+}
+
+// ══════════════════════════════ CONFETTI ══════════════════════════════
+function launchConfetti(){
+  const container=document.getElementById('confetti-container');container.innerHTML='';
+  const colors=['#FFB800','#FF4757','#2ECC71','#3498DB','#9B59B6','#FF6B9D','#FF8C42'];
+  for(let i=0;i<28;i++){
+    const el=document.createElement('div');
+    el.style.cssText=`position:absolute;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}%;animation:confettiFall ${1.5+Math.random()*2}s ease-in ${Math.random()*0.5}s forwards;`;
+    container.appendChild(el);
+  }
+}
+
+// ══════════════════════════════ DAILY MISSION ══════════════════════════════
+function openDailyMission(){
+  const student=getStudentData();
+  if(student.dailyDone){showToast('✅ Tapos na ang daily mission ngayon!');return;}
+  document.getElementById('daily-modal').classList.add('show');
+  playSound('tap');
+}
+function closeDailyMission(){document.getElementById('daily-modal').classList.remove('show');}
+
+function addPurchaseRow(){
+  const tbody=document.getElementById('purchase-table').querySelector('tbody')||document.getElementById('purchase-table');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Produkto..." class="purchase-input"></td>
+    <td><input type="number" placeholder="0" class="purchase-input" min="0"></td>
+    <td><select class="purchase-input" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,184,0,0.3);border-radius:8px;padding:6px;color:var(--text);font-family:Nunito,sans-serif;font-size:14px;font-weight:700;width:100%;">
+      <option value="">Piliin...</option>
+      <option>Pagkain</option><option>Damit</option><option>Paaralan</option>
+      <option>Libangan</option><option>Bahay</option><option>Iba pa</option>
+    </select></td>`;
+  // Insert before last row (header is first)
+  tbody.appendChild(tr);
+  playSound('tap');
+}
+
+function submitDailyMission(){
+  if(!S.studentId){showToast('❌ Mag-login muna bilang estudyante.');return;}
+
+  // Validate purchase table - at least 2 rows filled
+  const rows=document.getElementById('purchase-table').querySelectorAll('tr');
+  let filledRows=0;
+  rows.forEach((row,i)=>{if(i===0)return;const inputs=row.querySelectorAll('input,select');let hasContent=false;inputs.forEach(inp=>{if(inp.value.trim())hasContent=true;});if(hasContent)filledRows++;});
+
+  const ans1=document.getElementById('daily-ans-1').value.trim();
+  const ans2=document.getElementById('daily-ans-2').value.trim();
+  const ans3=document.getElementById('daily-ans-3').value.trim();
+
+  const errEl=document.getElementById('daily-error');
+  if(filledRows<2||ans1.split(/\s+/).filter(w=>w).length<60||ans2.split(/\s+/).filter(w=>w).length<60||ans3.split(/\s+/).filter(w=>w).length<60){
+    errEl.textContent='⚠️ Sagutan ang lahat ng tanong (min. 60 salita bawat isa) at listahan bago mag-submit!';
+    errEl.classList.add('show');
+    setTimeout(()=>errEl.classList.remove('show'),3000);
+    playSound('wrong');
+    return;
+  }
+
+  // Collect data for journal
+  const purchaseData=[];
+  rows.forEach((row,i)=>{if(i===0)return;const inputs=row.querySelectorAll('input,select');if(inputs[0].value.trim()){purchaseData.push(inputs[0].value+'(₱'+inputs[1].value+', '+inputs[2].value+')');}});
+
+  const store=getStore();const student=store.students[S.studentId];if(!student)return;
+  if(!student.dailyDone){
+    student.xp=(student.xp||50)+150;student.dailyDone=true;
+    student.journalEntries=[...(student.journalEntries||[]),{
+      missionTitle:'📅 Daily Mission: Ang Aking Mga Gastos',
+      answers:['Mga binili: '+purchaseData.join(', '),ans1,ans2,ans3],
+      xp:150,quarter:'Daily',id:'daily'
+    }];
+    store.students[S.studentId]=student;saveStore(store);
+    document.getElementById('xp-display').textContent=student.xp+' XP';
+  }
+  closeDailyMission();
+  document.getElementById('success-xp-amount').textContent='+150 XP';
+  document.getElementById('success-msg').textContent='Daily Mission Kumpleto! Magaling na mamumuhunan ka! 💰';
+  launchConfetti();playSound('success');
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+// ══════════════════════════════ JOURNAL ══════════════════════════════
+function renderJournal(){
+  const student=getStudentData();const entries=student.journalEntries||[];
+  const el=document.getElementById('journal-list');
+  if(entries.length===0){el.innerHTML='<div class="empty-state"><div class="big">📖</div><div style="font-size:16px;font-weight:700;">Wala pang naka-save na entry.<br>Kumpletuhin ang isang mission!</div></div>';return;}
+  el.innerHTML=entries.map(e=>`<div class="journal-entry">
+    <div class="journal-entry-title">${e.missionTitle}</div>
+    ${(e.answers||[]).filter(a=>a.trim()).map((a,i)=>`<div class="journal-entry-text" style="margin-bottom:8px;"><strong style="color:var(--gold);">Tanong ${i+1}:</strong> ${a}</div>`).join('')}
+    <div class="journal-entry-meta">✅ Nakumpleto · ${e.quarter} Mission ${e.id} · +${e.xp} XP</div>
+  </div>`).join('');
+}
+
+// ══════════════════════════════ PROFILE ══════════════════════════════
+function updateProfile(){
+  const student=getStudentData();const xp=student.xp||50;
+  document.getElementById('profile-xp').textContent=xp+' XP';
+  document.getElementById('profile-xp-bar').style.width=Math.min(100,(xp/2500)*100)+'%';
+  document.getElementById('missions-count').textContent=(student.missionsCompleted||[]).length;
+  document.getElementById('level-display').textContent=Math.floor(xp/500)+1;
+  const thresholds=[500,1000,1500,2000,2500];let earned=0;
+  thresholds.forEach((t,i)=>{const b=document.getElementById('badge-'+(i+1));if(xp>=t){b.className='badge-icon earned';earned++;}else{b.className='badge-icon locked';}});
+  document.getElementById('badges-count').textContent=earned;
+}
+
+// ══════════════════════════════ TOAST ══════════════════════════════
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// Init
+renderMissionGrid('Q1');
+</script>
+</body>
+</html>
